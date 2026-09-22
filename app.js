@@ -1,0 +1,842 @@
+const $ = (s, root = document) => root.querySelector(s);
+const $$ = (s, root = document) => [...root.querySelectorAll(s)];
+const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const A = 'assets/';
+const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6"/></svg>';
+const arrowLeft = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5m6-6-6 6 6 6"/></svg>';
+const pin = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 9c0 6-7 12-7 12S5 15 5 9a7 7 0 1 1 14 0Z"/><circle cx="12" cy="9" r="2"/></svg>';
+const studyURL = 'https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.1000316';
+const studios = [
+  {id:'cyclebar',name:'CycleBar',category:'Cycling',url:'https://www.cyclebar.com/',intro:'Find your rhythm. Ride to the music. Leave with a little more energy.',description:'An indoor cycling experience built around music, movement, and a room full of people riding together. Explore the brand’s studios and find a ride that fits your routine.',focus:'Indoor cycling',bring:'Water, comfortable workout clothes, and your energy.'},
+  {id:'solidcore',name:'[solidcore]',category:'Strength',url:'https://solidcore.co/',intro:'Slow, intentional movement. A challenge you can share.',description:'A strength workout on a specialized reformer, with slow, controlled movement and resistance. Discover a new way to challenge yourself alongside your workout circle.',focus:'Resistance training',bring:'Water and fitted, comfortable workout clothes.'},
+  {id:'purebarre',name:'Pure Barre',category:'Barre',url:'https://www.purebarre.com/',intro:'Small movements. Shared motivation. A stronger everyday.',description:'Barre classes combine small, controlled movements with an emphasis on strength, balance, and flexibility. Find your place at the barre and connect with others who keep coming back.',focus:'Barre',bring:'Water and grip socks; check the studio’s requirements.'},
+  {id:'corepower',name:'CorePower Yoga',category:'Yoga',url:'https://www.corepoweryoga.com/',intro:'Make space for your practice—and for new connections.',description:'Explore yoga and yoga-inspired fitness classes, including heated formats. Choose a class style that fits your experience and make your practice part of a shared routine.',focus:'Yoga & yoga sculpt',bring:'A mat, towel, and water; confirm the class temperature.'},
+  {id:'soulcycle',name:'SoulCycle',category:'Cycling',url:'https://www.soul-cycle.com/',intro:'A room, a rhythm, and a reason to come back.',description:'Music-led indoor cycling brings a group together for a shared ride. Find an instructor, playlist, and studio atmosphere that make movement something to look forward to.',focus:'Indoor cycling',bring:'Water and workout clothes; check cycling shoe options.'},
+  {id:'orangetheory',name:'Orangetheory Fitness',category:'Strength',img:'brand-orangetheory.webp',focal:'center 40%',url:'https://www.orangetheory.com/',intro:'A little encouragement goes a long way. Find yours here.',description:'Group fitness classes combine treadmill, rowing, and strength work with heart-rate tracking. Explore the format and check the studio’s current class options.',focus:'Cardio & strength',bring:'Water, a towel, and supportive training shoes.'},
+  {id:'clubpilates',name:'Club Pilates',category:'Pilates',url:'https://www.clubpilates.com/',intro:'Find your flow with a Pilates practice that grows with you.',description:'Reformer Pilates classes offer a place to build strength and explore controlled movement. Look through the studio’s class levels to find the right starting point for you.',focus:'Reformer Pilates',bring:'Water and grip socks; ask about an introductory class.'},
+  {id:'barrys',name:'Barry’s',category:'Strength',url:'https://www.barrys.com/',intro:'Meet in the Red Room. Leave with something in common.',description:'A group workout combining strength training and cardio in Barry’s signature Red Room. Check the local studio’s formats and book your workout directly with the studio.',focus:'Cardio & strength',bring:'Water and supportive training shoes.'}
+];
+function dateOffset(days, hour=7) { const d=new Date();d.setDate(d.getDate()+days);d.setHours(hour,0,0,0);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}T${String(hour).padStart(2,'0')}:00`; }
+const seedEvents = [
+  {id:'e1',title:'Pilates & a coffee after',category:'Pilates',studio:'clubpilates',img:null,area:'Dupont Circle',place:'Dupont Circle, Washington, DC',date:dateOffset(2,7),duration:50,people:8,host:'The morning circle',lat:38.9096,lon:-77.0434},
+  {id:'e2',title:'Find your flow, together',category:'Yoga',studio:'corepower',img:null,area:'Georgetown',place:'Georgetown, Washington, DC',date:dateOffset(2,18),duration:60,people:10,host:'After-work flow',lat:38.9050,lon:-77.0620},
+  {id:'e3',title:'A ride to start your day',category:'Cycling',studio:'cyclebar',img:null,area:'NoMa',place:'NoMa, Washington, DC',date:dateOffset(3,7),duration:45,people:6,host:'Early birds',lat:38.9070,lon:-77.0030},
+  {id:'e4',title:'The easy Sunday run',category:'Running',img:null,area:'Georgetown',place:'Georgetown Waterfront Park',date:dateOffset(4,9),duration:40,people:12,host:'The Sunday circle',lat:38.9020,lon:-77.0620},
+  {id:'e5',title:'Meet me at the barre',category:'Barre',studio:'purebarre',img:null,area:'Capitol Hill',place:'Capitol Hill, Washington, DC',date:dateOffset(4,18),duration:50,people:5,host:'The evening circle',lat:38.8868,lon:-76.9960},
+  {id:'e6',title:'A stronger kind of morning',category:'Strength',studio:'solidcore',img:null,area:'Logan Circle',place:'Logan Circle, Washington, DC',date:dateOffset(5,8),duration:50,people:7,host:'Weekend movement',lat:38.9097,lon:-77.0298}
+];
+const seedClubs=[{id:'c1',type:'club',title:'The Sunday circle',category:'Running',img:'pin-stretch.jpg',area:'Georgetown',place:'Georgetown Waterfront Park',date:dateOffset(4,9),duration:40,people:12,host:'Every Sunday · all paces welcome',lat:38.902,lon:-77.062},{id:'c2',type:'club',title:'The morning mat club',category:'Yoga',img:'mat-class.jpg',area:'Dupont Circle',place:'Dupont Circle, Washington, DC',date:dateOffset(3,7),duration:45,people:9,host:'A little movement before the day begins',lat:38.9096,lon:-77.0434}];
+const defaultState={profile:null,joined:[],saved:[],created:[],posts:[],connections:[],requests:[],drafts:[]};
+let state;
+try {state={...defaultState,...JSON.parse(localStorage.getItem('viri-preview')||'{}')};}catch {state={...defaultState};}
+function save(){try{localStorage.setItem('viri-preview',JSON.stringify(state));}catch{toast('This browser cannot save changes. Your preview still works for this visit.');}}
+let studioIndex=0, revealObserver;
+let explore={category:'All',area:'All neighborhoods',query:'',view:'map',kind:'classes',selected:null};
+let readCategory='All',toastTimer;
+const allEvents=()=>[...seedEvents,...seedClubs,...state.created];
+function prettyDate(date){return new Date(date).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});}
+function prettyTime(date){return new Date(date).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});}
+function initials(name){return (name||'Your Circle').split(' ').map(v=>v[0]).slice(0,2).join('').toUpperCase();}
+const button=(text,href,cls='')=>`<a class="button ${cls}" href="${href}">${text}</a>`;
+const note=text=>`<div class="preview-note"><strong>Preview</strong> ${text}</div>`;
+function toast(text){clearTimeout(toastTimer);$('#toast').textContent=text;$('#toast').classList.add('visible');toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),4500);}
+function openModal(title,content,after){$('#modal').innerHTML=`<div class="dialog-top"><p>ViRi · Vitality Ritual</p><button class="icon-button" data-action="close-modal" aria-label="Close dialog">×</button></div><h2>${title}</h2>${content}`;$('#modal').showModal();after?.();}
+function closeModal(){$('#modal').close();}
+$('#modal').addEventListener('click',e=>{if(e.target===$('#modal')){const b=e.target.getBoundingClientRect();if(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom)closeModal();}});
+function seal(id,label){return `<svg class="seal" viewBox="0 0 200 200" role="img" aria-label="${label}"><circle cx="100" cy="100" r="86" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="100" cy="100" r="78" fill="none" stroke="currentColor" stroke-width=".5" opacity=".5"/><path id="ring-${id}" d="M100,36 a64,64 0 1,1 -0.1,0" fill="none"/><text font-family="Jost, sans-serif" font-size="11" letter-spacing="5.4" fill="currentColor"><textPath href="#ring-${id}" startOffset="50%" text-anchor="middle">VITALITY \u00b7 RITUAL \u00b7 EST. 2026</textPath></text><text dx="1" x="100" y="122" font-family="Cormorant Garamond, Didot, serif" font-size="62" text-anchor="middle" fill="currentColor" letter-spacing="2">VR</text></svg>`;}
+function renderFooter(){ $('#footer').innerHTML=`<div class="footer-main"><div class="wrap"><div class="footer-grid"><div class="footer-brand"><a class="footer-seal" href="#/" aria-label="ViRi home">${seal('foot','ViRi \u2014 Vitality Ritual')}</a><a class="footer-logo" href="#/" aria-label="ViRi home">ViRi</a><p>Vitality Ritual</p><p>Build community around what moves you.</p><div class="socials"><a href="#/connect" aria-label="ViRi Instagram information"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".5"/></svg>Instagram</a><a href="#/connect" aria-label="ViRi TikTok information"><svg viewBox="0 0 24 24"><path d="M14 3v13a4 4 0 1 1-4-4M14 3c0 4 3 6 7 6"/></svg>TikTok</a></div></div><div class="footer-links"><p class="footer-label">Your next ritual</p><a href="#/explore">Explore opportunities</a><a href="#/studios">Discover studios</a><a href="#/read">The ViRi edit</a><a href="#/profile">Your profile</a></div><div class="footer-links"><p class="footer-label">Our community</p><a href="#/about">About us</a><a href="#/connect">Connect with us</a><a href="#/signup">Join now</a></div></div><div class="footer-bottom"><span>© ${new Date().getFullYear()} ViRi · Vitality Ritual</span><span>Interactive preview · <a href="#/privacy">Privacy</a> · <a href="#/terms">Terms</a> · <button class="plain-link" data-action="credits">Image credits</button></span></div></div></div>`;}
+function revealWords(text){return text.split(' ').map((word,i)=>`<span class="reveal-word" style="--word:${i}">${word}</span>`).join(' ');}
+function home(){return `<div class="home-page">
+<section class="cover">
+  <div class="cover-rail cover-rail-l" aria-hidden="true"><span class="rail-type">Vitality Ritual</span></div>
+  <figure class="cover-plate"><img class="cover-image" src="${A}pin-trail.jpg" alt="Two women on a trail at golden hour, one holding a quad stretch"><span class="cover-veil" aria-hidden="true"></span></figure>
+  <div class="cover-rail cover-rail-r" aria-hidden="true"><span class="rail-seal">${seal('cover','ViRi \u2014 Vitality Ritual')}</span><span class="rail-hair"></span><span class="rail-cap">Est. 2026</span></div>
+  <h1 id="home-title" class="cover-title"><span class="cw">Socialize</span><em class="cw">your</em><span class="cw">Fitness</span></h1>
+</section>
+<section class="statement" data-reveal>
+  <h2>Community built for your goals</h2>
+  <p>Connect with the people in your city who already share your fitness interests. Instead of trying to convince your friend to take that morning spin class with you, connect with someone who is already signed up.</p>
+  <a class="button" href="#/signup">Join now</a>
+</section>
+<div class="connect-wrap" id="connect-wrap">
+  <section class="feature feature-connect">
+    <figure class="feature-media connect-media">
+      <img class="connect-shot is-on" src="${A}pin-legs.jpg" alt="A single figure mid-movement, legs arched against a plain ground" loading="lazy">
+      <img class="connect-shot" src="${A}studio-still.jpg" alt="Mats, blocks and weights laid out before class" loading="lazy">
+      <img class="connect-shot" src="${A}pin-rug.jpg" alt="Two women sitting together on a mat, seen from above" loading="lazy">
+    </figure>
+    <div class="feature-panel">
+      <h2>Connect</h2>
+      <ol class="panel-list">
+        <li class="is-on"><span class="panel-n">1</span><span class="panel-body"><span class="panel-t">Build your profile</span><span class="panel-d"><span>What moves you, where you go, the hours you keep.</span></span></span></li>
+        <li><span class="panel-n">2</span><span class="panel-body"><span class="panel-t">Explore what’s nearby</span><span class="panel-d"><span>The studios, classes and standing plans around you.</span></span></span></li>
+        <li><span class="panel-n">3</span><span class="panel-body"><span class="panel-t">Find your people</span><span class="panel-d"><span>Meet the women booked into the same class, and go together.</span></span></span></li>
+      </ol>
+      <a class="panel-link" href="#/signup">Start your profile ${arrow}</a>
+    </div>
+  </section>
+</div>
+<section class="section studio-section"><div class="wrap"><div class="section-head" data-reveal><h2 class="section-title">Find your next favorite</h2><div class="head-controls"><button class="circle-button" data-action="studio-prev" aria-label="Previous studios">‹</button><button class="circle-button" data-action="studio-next" aria-label="Next studios">›</button><a class="text-link" href="#/studios">All studios ${arrow}</a></div></div><div class="cards-three" id="studio-grid" aria-live="polite" aria-label="Featured studios">${studioCards()}</div><p class="section-foot">Member attendance counts are illustrative for this preview.</p></div></section>
+<section class="feature feature-reverse" data-reveal>
+  <figure class="feature-media"><img src="${A}coffee-table.jpg" alt="Two women talking over coffee at a table after class" loading="lazy"></figure>
+  <a class="feature-copy" href="#/signup">
+    <p class="eyebrow">Wellness goes beyond the workout</p>
+    <h2>Connection is part of longevity</h2>
+    <p class="longevity-figure"><strong>50%</strong> higher odds of survival</p>
+    <p class="longevity-lede">People with strong social ties outlived those without them across 148 studies and 308,849 people—an effect researchers put on par with quitting smoking. A standing class with the same faces every week is one of the easiest ways to build ties like that.</p>
+    <span class="longevity-cta">Find your circle ${arrow}</span>
+  </a>
+</section>
+<p class="longevity-source">Holt-Lunstad et al., <a href="${studyURL}" target="_blank" rel="noopener">PLOS Medicine</a>, 2010. Odds of survival over an average 7.5 years of follow-up—not a 50% longer life.</p>
+<section class="section"><div class="wrap"><div class="section-head" data-reveal><h2 class="section-title">The ViRi edit</h2><a class="text-link" href="#/read">All stories ${arrow}</a></div><div class="cards-three">${allArticles().slice(0,3).map((a,i)=>a.draft?draftCard(a,i):articleCard(a,i)).join('')}</div></div></section>
+<section class="testimonial" data-reveal><div class="wrap">
+  <p class="stars" aria-label="Five stars">★★★★★</p>
+  <blockquote>${reviews[0].text}</blockquote>
+  <p class="testimonial-by">${reviews[0].name} · Illustrative member story</p>
+</div></section>
+${joinFinale()}</div>`;}
+function studioCards(){return [0,1,2].map(i=>studioCard(studios[(studioIndex+i)%studios.length])).join('');}
+/* the photograph has to show the thing the studio actually does */
+const STUDIO_PHOTO={cyclebar:'hero-cycling-studio.webp',solidcore:'hero-pilates.jpg',purebarre:'studio-arches.jpg',
+  corepower:'hero-mats.jpg',soulcycle:'brand-soulcycle.jpg',orangetheory:'brand-orangetheory.webp',
+  clubpilates:'pin-matclass.jpg',barrys:'brand-barrys.jpg'};
+const studioPhoto=s=>STUDIO_PHOTO[s.id]||null;
+function studioCard(s){const count=[128,96,84,112,105,76,93,68][studios.indexOf(s)];return `<article class="tile tile-studio" data-reveal><a href="#/studios/${s.id}"><div class="tile-plate"><img class="plate-photo" src="${A+studioPhoto(s)}" alt="" aria-hidden="true" loading="lazy"><h3 class="plate-name">${s.name}</h3><span class="plate-cat">${s.category}</span></div><p class="tile-meta"><span class="tile-index">${count} members \u00b7 sample</span></p><p>${s.intro}</p></a></article>`;}
+function statistics(){return `<section class="longevity-section"><a class="longevity-inner" href="#/signup" data-reveal><p class="eyebrow">Wellness goes beyond the workout</p><h2>Connection is part of longevity</h2><p class="longevity-figure"><strong>50%</strong> higher odds of survival</p><p class="longevity-lede">People with strong social ties outlived those without them across 148 studies and 308,849 people—an effect researchers put on par with quitting smoking. A standing class with the same faces every week is one of the easiest ways to build ties like that.</p><span class="longevity-cta">Find your circle ${arrow}</span></a><p class="longevity-source">Holt-Lunstad et al., <a href="${studyURL}" target="_blank" rel="noopener">PLOS Medicine</a>, 2010. Odds of survival over an average 7.5 years of follow-up—not a 50% longer life.</p></section>`;}
+function joinFinale(){return `<section class="join-finale" aria-label="Join ViRi" data-reveal><div class="join-inner"><p class="eyebrow">Your people. Your pace. Your ritual.</p><h2>Find your circle</h2>${button('Join now','#/signup','light')}</div></section>`;}
+function joinSection(){return joinFinale();}
+const reviews=[{title:'A familiar face at class',text:'“I came for a workout and found people I look forward to seeing every week.”',name:'The studio regular'},{title:'A new city, a new circle',text:'“Having someone to meet for a run makes a big city feel a little more like home.”',name:'The new neighbor'},{title:'A ritual worth keeping',text:'“A shared class and a coffee afterward became the part of my week I never want to miss.”',name:'The weekend mover'}];
+function artDate(s){if(!s)return null;const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
+const fmtLong=s=>{const d=artDate(s);return d?d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}):'';};
+const fmtShort=s=>{const d=artDate(s);return d?d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';};
+const articles=[
+ {id:'september-reset',category:'Mindset',title:'The Truth About the September Wellness Reset',img:'reading.jpg',author:'Margaret Cole',date:'2026-09-19',desc:'Why the fresh start you are waiting for is one you can build yourself, any day you choose.',body:`<p>If you’ve been on social media in the last three weeks, you’ve likely seen dozens of videos framing September as the new January.  And in some ways, it can be.  We are two-thirds of the way through the year, which may seem daunting, but this leaves four whole months to start the habit or work toward the goal you’ve been telling your friends you were going to begin but just didn’t have the time or motivation to.  But if we’re being honest, there isn’t much about September that makes it the perfect month to turn your life around—the timing is fairly arbitrary.  It’s still summer for the first three weeks of the month, and most high schools and colleges have already started their academic years.</p><p>The real appeal of September that influencers have been pushing is the idea of having a new beginning.  The concept of new beginnings has been studied extensively by some of the world’s top academics, such as Dr. Katy Milkman, a professor of behavioral economics at the Wharton School at the University of Pennsylvania.  Dr. Milkman’s 2021 book <em>How to Change: The Science of Getting from Where You Are to Where You Want to Be</em>, discusses the concept of “the fresh start effect,” which she coined back in a <a href="https://static1.squarespace.com/static/5353b838e4b0e68461b517cf/t/53b17c1be4b09fe9f6e12f32/1404140571261/the-fresh-start-effect.pdf" target="_blank" rel="noopener">2014 study</a>.  I had the privilege of not only reading Dr. Milkman’s book but also speaking to her in February about the fresh start effect.  Simply put, her theory is that landmark moments—such as New Year’s, your birthday, the first day of a new month, or even a Monday—make us feel mentally separate from our past failures and give us a temporary boost in motivation to change.</p><p>This theory isn’t necessarily groundbreaking because we actually implement the fresh start effect in our own lives all the time.  When was the last time that you told yourself that Monday was going to be the day you finally started waking up early, going to the gym more consistently, etc.?  In my opinion, the key implication of Dr. Milkman’s research is not the finding itself, but what we can do with an awareness of our psychological tendencies.  By knowing that we are more likely, at least temporarily, to experience a boost in motivation during landmark moments, we can construct our own fresh starts to strategically accomplish our goals.</p><p>Here is an example of how I have implemented this concept in my own life. On Monday, August 24th, I made a commitment to myself to start becoming a morning person.  Throughout June and July, I had fallen into a habit of giving myself just enough time to do the bare essentials before working my 9-to-5.  As a result, I was left trying to squeeze everything non-work-related into the few hours I had after getting home each day.  And, surprise, it wasn’t working—I was living reactively, not proactively.</p><p>What finally sparked my desire to change was something completely unexpected.  On Saturday, August 22nd, my mom sent me a link to wellness influencer Michaela Allocca’s podcast, which primarily deals with becoming a productive, independent woman in your 20s.  Two days later, while on a run, I listened to her episode titled “<a href="https://podcasts.apple.com/us/podcast/dont-depend-on-daddy/id1473703898?l=zh-Hans-CN" target="_blank" rel="noopener">How to Become a Morning Person | 6 Tips to Make Your Mornings Better That Actually Stick</a>.”  During the episode, Michaela talked about how we often try to jump from 1 to 100 when making big life changes, and how unrealistic this is when trying to build sustainable habits.  Instead, she recommended starting small and gradually adjusting your routine.</p><p>I realized that I had been doing exactly the opposite.  There had been several mornings in the previous months when I had told myself, tomorrow is it—I’m waking up at 5 a.m. and going on a 10-mile run. But when my alarm went off in the morning, I would immediately snooze it and go back to sleep.  This time, I decided to take a more reasonable approach: I would start small, make Monday my fresh start, and gradually work toward the morning routine I actually wanted.</p><p>And it worked.  It’s now been almost a month, and I have successfully conditioned myself to naturally wake up at 5:30 a.m.  With three hours of time for myself before work, I’ve found a renewed sense of motivation to accomplish my personal goals and prioritize my wellness.  More importantly, though, I put Dr. Milkman’s research into practice.  I chose a landmark moment—a Monday—to separate myself from the routine that wasn’t working, paired it with a goal that felt attainable, and gave myself the motivation to finally make a change.</p><p>My Monday morning wasn’t inherently different from any other Monday.  What made it different was that I decided it was a fresh start.</p><p>This is exactly what the September reset has become: an artificially constructed new beginning that we can use to harness motivation and change for the better.  Here’s the good news: if you didn’t start your end-of-year lock-in on September 1st, that’s okay!  There are so many landmark moments in your day-to-day life just waiting for you to capitalize on.  Now, this doesn’t mean that you should wait until October 1st, the start of the next quarter, your birthday, etc., to finally commit to making a change.  You have the capability (and should absolutely use it) to construct your own fresh start right now, and once you have, you’ll be able to look back and see just how much you were able to accomplish by simply choosing to begin.</p>`},
+ {id:'fall-rituals',date:'2026-09-05',category:'Style',title:'A little inspiration for your fall workout wardrobe',img:'lockers.jpg',desc:'Simple layers, comfortable favorites, and colors you love.',body:`<p>Your favorite workout outfit should feel like you. For this fall edit, we’re thinking about pieces that move easily from a class to a walk with a friend.</p><h2>Start with what you already love</h2><p>A comfortable matching set makes getting out the door simpler. Burgundy, deep brown, and cream fit beautifully together, but the best palette is the one you reach for.</p><h2>Bring a layer for afterward</h2><p>A relaxed sweatshirt or light jacket is useful for the walk to the studio and a coffee stop on the way home. Choose pieces you can take off and carry easily.</p><h2>Let the activity lead</h2><p>Check your studio’s footwear and grip-sock requirements before your first visit. Keep a small bag ready with your essentials so your next class takes a little less planning.</p><p class="small">Editorial preview. Product selections and shopping links will be added when the edit is finalized.</p>`},
+ {id:'running-together',date:'2026-08-22',category:'Movement',title:'Starting your running journey? Five ways to find your circle',img:'barre-balls.jpg',desc:'Your first running club starts with one shared plan.',body:`<p>You don’t need a race on your calendar to meet people through running. A short outing and an easy conversation can be a starting point.</p><h2>1. Find a group that welcomes beginners</h2><p>Look for a club that clearly describes its pace, route, and approach to walk breaks. Ask whether everyone finishes together.</p><h2>2. Make the meeting point specific</h2><p>A familiar park entrance or landmark makes it easier to find the group and arrive without a rush.</p><h2>3. Say hello before you start</h2><p>Tell the organizer it’s your first visit. One introduction can make joining a new group feel easier.</p><h2>4. Choose a time you can return to</h2><p>Try a recurring outing that fits your schedule. Seeing the same faces again creates more chances to connect.</p><h2>5. Leave a little time afterward</h2><p>A coffee, a stretch, or a walk home together gives a new conversation somewhere to go.</p>`},
+ {id:'shared-rituals',date:'2026-08-08',category:'Community',title:'Why the people beside you matter',img:'detail-weights.jpg',desc:'The connection between our relationships and living well.',body:`<p>A workout can give us a reason to get together. The conversation before class and the familiar face on the next mat can become part of the ritual.</p><h2>Connection deserves our attention</h2><p>A 2010 meta-analysis combined 148 studies involving 308,849 participants. Stronger social relationships were associated with 50% higher odds of survival over the studies’ follow-up periods.</p><p>This does not mean a 50% longer life, and it does not establish that joining a workout community causes that outcome. It shows why social connection belongs in a conversation about well-being.</p><h2>Start with something you share</h2><p>Our idea is simple: shared interests and routines create opportunities to meet. Find a class you enjoy, invite someone along, and see what develops.</p><p><a href="${studyURL}" target="_blank" rel="noopener">Read the original research in PLOS Medicine</a>.</p>`}
+ ,{id:'after-class',date:'2026-07-25',category:'Community',title:'The ritual after the ritual',img:'studio-shelf.jpg',desc:'Leave a little room for a coffee and a conversation.',body:`<p>Sometimes the best part of a class is what happens after it. You put your mat away, step outside, and realize you have a few minutes to spare.</p><h2>Make a small invitation</h2><p>“I’m getting a coffee nearby—would you like to come?” A simple invitation gives someone a choice without turning an ordinary moment into a big plan.</p><h2>Keep it easy to repeat</h2><p>You don’t need a new destination every week. A familiar café or a walk around the block can become a comfortable place to pick up a conversation.</p><h2>Let connection take its time</h2><p>Some days you’ll linger; other days you’ll head straight home. The point is to make space for the people you keep seeing, in a way that fits both of your lives.</p><p class="small">An original ViRi editorial preview.</p>`}
+];
+const allArticles=()=>[...(state.drafts||[]),...articles]
+  .sort((x,y)=>(artDate(y.date)?.getTime()||0)-(artDate(x.date)?.getTime()||0));
+function draftCard(d,i){return `<article class="tile" data-reveal><a href="#/read/${d.id}"><div class="tile-media"><img src="${A+d.img}" alt="${escapeHTML(d.desc)}" loading="lazy"></div><p class="tile-meta"><span class="tag">${escapeHTML(d.category)}</span><span class="tile-index"><span class="tile-no">No. ${String((i??0)+1).padStart(2,'0')}</span>${d.date?`<time class="tile-date" datetime="${d.date}">${fmtShort(d.date)}</time>`:'<span class="tile-date">Your draft</span>'}</span></p><h3>${escapeHTML(d.title)}</h3><p>${escapeHTML(d.desc)}</p></a></article>`;}
+function writeStory(id){
+  const d=(state.drafts||[]).find(x=>x.id===id);
+  /* only offer photographs nothing else on the site is using, so a new story
+     cannot duplicate a picture that is already somewhere */
+  const taken=new Set([...articles,...(state.drafts||[])].filter(x=>!d||x.id!==d.id).map(x=>x.img)
+    .concat(Object.values(STUDIO_PHOTO),
+      ['pin-trail.jpg','pin-legs.jpg','studio-still.jpg','pin-rug.jpg','coffee-table.jpg',
+       'studio-sculpt.jpg','studio-entry.jpg','pin-stretch.jpg','mat-class.jpg']));
+  const imgs=['pin-cafe.jpg','connect-reformers.jpg','hero-tree-pose.jpg','barre-white.jpg',
+    'studio-arches.jpg','barre-balls.jpg','lockers.jpg','studio-shelf.jpg','detail-weights.jpg']
+    .filter(x=>!taken.has(x)||(d&&d.img===x));
+  openModal(d?'Edit your story':'Write a story',
+  `<p class="small" style="margin-bottom:20px">Written here, a story is saved in this browser only — nobody else can see it and it does not survive clearing your site data. To publish it for real, write it here, then use <b>Copy for publishing</b> and send me the text.</p>
+   <form id="story-form">
+     <div class="field"><label for="st-title">Headline</label>
+       <input id="st-title" name="title" maxlength="90" required value="${d?escapeHTML(d.title):''}"></div>
+     <div class="form-row">
+       <div class="field"><label for="st-cat">Category</label>
+         <select id="st-cat" name="category">${['Movement','Community','Style'].map(c=>`<option ${d&&d.category===c?'selected':''}>${c}</option>`).join('')}</select></div>
+       <div class="field"><label for="st-img">Photograph</label>
+         <select id="st-img" name="img">${imgs.map(i=>`<option value="${i}" ${d&&d.img===i?'selected':''}>${i.replace(/\.(jpg|png|webp)$/,'').replace(/-/g,' ')}</option>`).join('')}</select></div>
+     </div>
+     <div class="field"><label for="st-desc">Standfirst — one line under the headline</label>
+       <input id="st-desc" name="desc" maxlength="140" required value="${d?escapeHTML(d.desc):''}"></div>
+     <div class="field"><label for="st-body">The story</label>
+       <textarea id="st-body" name="body" rows="12" required placeholder="Write in plain paragraphs. Leave a blank line between them.">${d?escapeHTML(d.raw||''):''}</textarea></div>
+     <p id="st-error" class="field-error" role="alert"></p>
+     <div class="dialog-actions">
+       ${d?`<button type="button" class="button outline small" data-action="delete-story" data-id="${d.id}">Delete</button>`:''}
+       <button type="button" class="button outline small" data-action="close-modal">Cancel</button>
+       <button class="button small" type="submit">${d?'Save changes':'Add to the edit'}</button>
+     </div>
+   </form>`,
+  ()=>{$('#story-form').addEventListener('submit',e=>{
+    e.preventDefault();
+    const f=Object.fromEntries(new FormData(e.target));
+    const raw=String(f.body).trim();
+    if(!raw){$('#st-error').textContent='The story needs some words in it.';return;}
+    const html=raw.split(/\n\s*\n/).map(p=>`<p>${escapeHTML(p.trim()).replace(/\n/g,'<br>')}</p>`).join('');
+    const today=new Date();const iso=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+    const entry={id:d?d.id:'draft-'+crypto.randomUUID().slice(0,8),draft:true,date:d?d.date:iso,
+      title:String(f.title).trim(),category:f.category,img:f.img,desc:String(f.desc).trim(),raw,body:html};
+    state.drafts=d?(state.drafts||[]).map(x=>x.id===entry.id?entry:x):[entry,...(state.drafts||[])];
+    save();closeModal();readCategory='All';location.hash='#/read';render(false);
+    toast(d?'Story updated on this device.':'Story added. It lives in this browser only.');
+  });});
+}
+function copyStory(id){
+  const d=(state.drafts||[]).find(x=>x.id===id); if(!d)return;
+  const text=`TITLE: ${d.title}\nCATEGORY: ${d.category}\nSTANDFIRST: ${d.desc}\nPHOTO: ${d.img}\n\n${d.raw}`;
+  navigator.clipboard?.writeText(text).then(
+    ()=>toast('Copied. Send me that text and I will publish it into the site properly.'),
+    ()=>toast('Could not reach the clipboard — select the text in the story and copy it by hand.'));
+}
+function articleCard(a,i){return `<article class="tile" data-reveal><a href="#/read/${a.id}"><div class="tile-media"><img src="${A+a.img}" alt="${escapeHTML(a.desc)}" loading="lazy"></div><p class="tile-meta"><span class="tag">${escapeHTML(a.category)}</span><span class="tile-index"><span class="tile-no">No. ${String((i??allArticles().indexOf(a))+1).padStart(2,'0')}</span>${a.date?`<time class="tile-date" datetime="${a.date}">${fmtShort(a.date)}</time>`:''}</span></p><h3>${escapeHTML(a.title)}</h3><p>${escapeHTML(a.desc)}</p></a></article>`;}
+function readNext(current){
+  const others=allArticles().filter(x=>x.id!==current).slice(0,3);
+  if(!others.length)return '';
+  return `<nav class="read-next" aria-label="Read next">
+    <p class="rail-label">Read next</p>
+    ${others.map(x=>`<a class="rn-item" href="#/read/${x.id}">
+      <span class="rn-cat">${escapeHTML(x.category)}</span>
+      <span class="rn-title">${escapeHTML(x.title)}</span>
+      ${x.date?`<time class="rn-date" datetime="${x.date}">${fmtShort(x.date)}</time>`:''}
+    </a>`).join('')}
+  </nav>`;
+}
+const subscribeBox=()=>`<form class="subscribe" id="subscribe-form">
+  <p class="rail-label">The ViRi edit</p>
+  <p class="subscribe-copy">One letter a month. What we are reading, where we are moving, and who we met doing it.</p>
+  <label class="sr-only" for="sub-email">Email address</label>
+  <input id="sub-email" name="email" type="email" placeholder="you@example.com" required>
+  <button class="button small" type="submit">Subscribe</button>
+  <p class="subscribe-note">Preview only &mdash; nothing is sent and no address leaves this device.</p>
+</form>`;
+function readPage(id){if(id){const a=allArticles().find(x=>x.id===id);if(!a)return notFound();
+  return `<article class="article">
+    <div class="wrap">
+      <a href="#/read" class="text-link">${arrowLeft} All stories</a>
+      <header class="article-head">
+        <div class="article-titles">
+          <p class="eyebrow">${escapeHTML(a.category)} &middot; ${a.draft?'Your draft &middot; saved on this device only':'The ViRi edit'}</p>
+          <h1>${escapeHTML(a.title)}</h1>
+          <p class="standfirst">${escapeHTML(a.desc)}</p>
+          <p class="byline">${a.date?`<time datetime="${a.date}">${fmtLong(a.date)}</time>`:''}${a.author?`<span class="byline-dot" aria-hidden="true">&middot;</span><span>By ${escapeHTML(a.author)}</span>`:''}</p>
+        </div>
+        <figure class="article-figure"><img src="${A+a.img}" alt="${escapeHTML(a.desc)}"></figure>
+      </header>
+      <div class="article-body">
+        <aside class="article-rail">${subscribeBox()}${readNext(a.id)}</aside>
+        <div class="article-prose">
+          ${a.body}
+          ${a.draft?`<div class="draft-bar"><button class="button small outline" data-action="write-story" data-id="${a.id}">Edit</button><button class="button small" data-action="copy-story" data-id="${a.id}">Copy for publishing</button></div>`:''}
+          <div class="article-foot">${button('Find your next ritual','#/explore')}</div>
+        </div>
+      </div>
+    </div>
+  </article>`;}
+  return `<section class="page-head"><div class="wrap"><p class="eyebrow">The ViRi edit</p><h1>A little inspiration<br>for your everyday.</h1><p>Movement, community, and the rituals that bring us together.</p></div></section><section class="wrap" style="padding-bottom:80px"><div class="toolbar" style="justify-content:space-between"><div class="chips" aria-label="Filter stories" style="margin:0">${['All','Mindset','Movement','Community','Style'].map(c=>`<button class="chip ${readCategory===c?'active':''}" data-action="read-filter" data-category="${c}" aria-pressed="${readCategory===c}">${c}</button>`).join('')}</div><button class="button small outline" data-action="write-story">Write a story ${arrow}</button></div><div class="cards-three">${allArticles().filter(a=>readCategory==='All'||readCategory===a.category).map((a,i)=>a.draft?draftCard(a,i):articleCard(a,i)).join('')}</div></section>`;}
+function filteredEvents(){return allEvents().filter(e=>(explore.kind==='clubs'?e.type==='club':e.type!=='club')&&(explore.category==='All'||e.category===explore.category)&&(explore.area==='All neighborhoods'||e.area===explore.area)&&(`${e.title} ${e.category} ${e.place} ${e.host} ${studios.find(s=>s.id===e.studio)?.name||""}`.toLowerCase().includes(explore.query.toLowerCase())));}
+function eventCard(e){const joined=state.joined.includes(e.id);return `<article class="event-card">${e.img
+  ?`<img src="${A+e.img}" alt="${escapeHTML(e.category)} community activity" loading="lazy">`
+  :`<span class="card-ph" role="img" aria-label="Photograph to come"><span class="ph-mark">${phMark()}</span><span class="ph-cap">Photo<br>to come</span></span>`}<div class="event-info"><p class="event-meta">${escapeHTML(e.category)} · ${escapeHTML(e.area)}</p><h3>${escapeHTML(e.title)}</h3><p>${prettyDate(e.date)} · ${prettyTime(e.date)} · ${e.duration} min</p><p class="small">${escapeHTML(e.host)}</p><div class="event-bottom"><span class="small">${e.people+(joined?1:0)} ${e.type==='club'?'members':'people going'}</span><button class="button small ${joined?'outline':''}" data-action="join-event" data-id="${e.id}" aria-pressed="${joined}">${joined?'Joined ✓':e.type==='club'?'Join club':'Join activity'}</button></div><button class="plain-link small" style="margin-top:13px" data-action="event-details" data-id="${e.id}">View details & location</button></div></article>`;}
+/* ===================== Explore: map, classes, rosters ===================== */
+let ex={city:'dc',cat:'All',day:0,time:'All',members:false,query:'',venue:null,cls:null};
+const exCity=()=>VIRI.cities.find(c=>c.id===ex.city)||VIRI.cities[0];
+const exVenue=id=>VIRI.venues.find(v=>v.id===id);
+const exPerson=id=>VIRI.people.find(p=>p.id===id);
+let exAll=null;
+const exClasses=()=>(exAll||(exAll=VIRI.buildClasses()));
+const DAYBANDS={Early:[0,9],Midday:[9,16],Evening:[16,24]};
+
+function exDays(){const out=[];for(let i=0;i<7;i++){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+i);
+  out.push({i,label:i===0?'Today':i===1?'Tomorrow':d.toLocaleDateString('en-US',{weekday:'short'}),
+    sub:d.toLocaleDateString('en-US',{month:'short',day:'numeric'})});}return out;}
+
+function exMatch(c){
+  if(c.city!==ex.city)return false;
+  const d=new Date(c.start), t=new Date(); t.setHours(0,0,0,0); t.setDate(t.getDate()+ex.day);
+  if(d.toDateString()!==t.toDateString())return false;
+  if(ex.cat!=='All'&&c.cat!==ex.cat)return false;
+  if(ex.venue&&c.venue!==ex.venue)return false;
+  if(ex.members&&!c.going.length)return false;
+  if(ex.time!=='All'){const h=d.getHours()+d.getMinutes()/60,b=DAYBANDS[ex.time];if(h<b[0]||h>=b[1])return false;}
+  if(ex.query){const v=exVenue(c.venue),q=ex.query.toLowerCase();
+    if(!((c.title+' '+v.brand+' '+c.area+' '+c.cat+' '+c.coach).toLowerCase().includes(q)))return false;}
+  return true;
+}
+const exFiltered=()=>exClasses().filter(exMatch);
+
+/* ---- map geometry ---- */
+function exBox(city){
+  /* frame on the studios and neighborhoods only — water and parks may run off the edge */
+  const pts=[];
+  VIRI.venues.forEach(v=>{if(v.city===city.id)pts.push([v.lon,v.lat]);});
+  city.areas.forEach(a=>pts.push([a.lon,a.lat]));
+  let w=Math.min(...pts.map(p=>p[0])),e=Math.max(...pts.map(p=>p[0]));
+  let s=Math.min(...pts.map(p=>p[1])),n=Math.max(...pts.map(p=>p[1]));
+  const px=(e-w)*0.14||0.01, py=(n-s)*0.14||0.01;
+  w-=px;e+=px;s-=py;n+=py;
+  const k=Math.cos((s+n)/2*Math.PI/180), target=640/1000;
+  const dw=(e-w)*k, dh=n-s;
+  if(dh/dw<target){const add=(dw*target-dh)/2;s-=add;n+=add;}
+  else{const add=(dh/target/k-(e-w))/2;w-=add;e+=add;}
+  return {w,e,s,n};
+}
+function exXY(b,lon,lat){return [(lon-b.w)/(b.e-b.w)*1000,(1-(lat-b.s)/(b.n-b.s))*640];}
+const exPath=(b,line)=>line.map((p,i)=>(i?'L':'M')+exXY(b,p[0],p[1]).map(v=>v.toFixed(1)).join(' ')).join(' ');
+
+function exSchematic(){
+  const city=exCity(), b=exBox(city), list=exFiltered();
+  const counts={}; list.forEach(c=>{counts[c.venue]=(counts[c.venue]||0)+1;});
+  const venues=VIRI.venues.filter(v=>v.city===city.id);
+  const water=city.water.map(l=>`<path d="${exPath(b,l)}" fill="none" stroke="var(--map-water)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>`).join('');
+  const green=city.green.map(l=>`<path d="${exPath(b,l)+(l.length>2?' Z':'')}" fill="${l.length>2?'var(--map-green)':'none'}" stroke="var(--map-green)" stroke-width="${l.length>2?0:9}" stroke-linecap="round"/>`).join('');
+  const pinPts=venues.map(v=>exXY(b,v.lon,v.lat));
+  const placed=[];
+  const labels=city.areas.map(a=>{
+    const[x,y]=exXY(b,a.lon,a.lat);
+    const half=a.n.length*5.2+12;
+    let ly=y-20, tries=0;
+    while(tries<3&&pinPts.some(p=>Math.abs(p[0]-x)<half+16&&p[1]>ly-16&&p[1]<ly+10)){ly-=24;tries++;}
+    if(x-half<8||x+half>992||ly<24||ly>622)return '';
+    if(pinPts.some(p=>Math.abs(p[0]-x)<half+16&&p[1]>ly-16&&p[1]<ly+10))return '';
+    if(placed.some(p=>Math.abs(p[0]-x)<p[2]+half+18&&Math.abs(p[1]-ly)<24))return '';
+    placed.push([x,ly,half]);
+    return `<text class="map-area" x="${x.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="middle">${escapeHTML(a.n.toUpperCase())}</text>`;}).join('');
+  const pins=venues.map(v=>{
+    const[x,y]=exXY(b,v.lon,v.lat), n=counts[v.id]||0, on=ex.venue===v.id;
+    const r=n?9+Math.min(n,6)*1.5:6.5;
+    return `<g class="map-pin ${on?'is-on':''} ${n?'':'is-empty'}" data-action="ex-venue" data-id="${v.id}" tabindex="0" role="button"
+      aria-label="${escapeHTML(v.brand)}, ${escapeHTML(v.area)} — ${n} class${n===1?'':'es'}">
+      <circle class="pin-halo" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(r+9).toFixed(1)}"/>
+      <circle class="pin-dot" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}"/>
+      ${n?`<text class="pin-n" x="${x.toFixed(1)}" y="${(y+4.2).toFixed(1)}" text-anchor="middle">${n}</text>`:''}
+      <title>${escapeHTML(v.brand)} · ${escapeHTML(v.area)}</title></g>`;}).join('');
+  return `<svg class="map-svg" id="ex-map" viewBox="0 0 1000 640" role="img" aria-label="${escapeHTML(city.name)} studio map">
+      <rect x="0" y="0" width="1000" height="640" fill="var(--map-ground)"/>
+      <g id="ex-mapg">${green}${water}${labels}${pins}</g>
+    </svg>`;
+}
+
+
+/* ---- slippy tile map (no library: web-mercator tiles + markers) ---- */
+const TILE=256, TILE_URL=(z,x,y)=>`https://tile.openstreetmap.org/${z}/${x}/${y}.png`;
+const lon2x=(lon,z)=>(lon+180)/360*Math.pow(2,z);
+const lat2y=(lat,z)=>{const r=lat*Math.PI/180;return (1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*Math.pow(2,z);};
+const x2lon=(x,z)=>x/Math.pow(2,z)*360-180;
+const y2lat=(y,z)=>{const n=Math.PI-2*Math.PI*y/Math.pow(2,z);return 180/Math.PI*Math.atan(.5*(Math.exp(n)-Math.exp(-n)));};
+let mapS={z:13,cx:0,cy:0,pan:null,fail:0,ok:0,dead:false,city:null};
+
+function exMap(){
+  const city=exCity();
+  return `<div class="map-shell">
+    <div class="map-frame" id="ex-mapframe">
+      <div class="map-world" id="ex-world" aria-hidden="true"></div>
+      <div class="map-markers" id="ex-markers"></div>
+      <div class="map-fallback" id="ex-fallback" hidden><div class="map-fallback-in">${exSchematic()}</div>
+        <p class="map-fallback-note">Map tiles cannot load in this published preview &mdash; its security policy blocks outside images. Open the files locally and the real map appears here. This is the fallback.</p></div>
+      <div class="map-tools">
+        <button class="circle-button" data-action="ex-zoom" data-dir="in" aria-label="Zoom in">+</button>
+        <button class="circle-button" data-action="ex-zoom" data-dir="out" aria-label="Zoom out">&minus;</button>
+        <button class="circle-button" data-action="ex-zoom" data-dir="reset" aria-label="Fit all studios">&#8634;</button>
+      </div>
+      <p class="map-credit">&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors</p>
+    </div>
+    <p class="map-foot">${VIRI.venues.filter(v=>v.city===city.id).length} studios in ${escapeHTML(city.name)} &middot; drag to move &middot; locations approximate</p>
+  </div>`;
+}
+function exFitCity(){
+  const city=exCity(), vs=VIRI.venues.filter(v=>v.city===city.id);
+  const el=$('#ex-mapframe'); if(!el||!vs.length)return;
+  const w=el.clientWidth||900, h=el.clientHeight||560;
+  let z=17;
+  for(;z>9;z--){
+    const xs=vs.map(v=>lon2x(v.lon,z)*TILE), ys=vs.map(v=>lat2y(v.lat,z)*TILE);
+    if(Math.max(...xs)-Math.min(...xs)<w-120&&Math.max(...ys)-Math.min(...ys)<h-120)break;
+  }
+  mapS.z=z; mapS.city=city.id;
+  mapS.cx=vs.reduce((s,v)=>s+lon2x(v.lon,z),0)/vs.length;
+  mapS.cy=vs.reduce((s,v)=>s+lat2y(v.lat,z),0)/vs.length;
+}
+function exDraw(){
+  const frame=$('#ex-mapframe'), world=$('#ex-world'), marks=$('#ex-markers');
+  if(!frame||!world)return;
+  const w=frame.clientWidth, h=frame.clientHeight, z=mapS.z, n=Math.pow(2,z);
+  const px=mapS.cx*TILE-w/2, py=mapS.cy*TILE-h/2;      /* world px of top-left */
+  const x0=Math.floor(px/TILE)-1, y0=Math.floor(py/TILE)-1;
+  const cols=Math.ceil(w/TILE)+3, rows=Math.ceil(h/TILE)+3;
+  let html='';
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+    const tx=x0+c, ty=y0+r; if(ty<0||ty>=n)continue;
+    const wx=((tx%n)+n)%n;
+    html+=`<img class="map-tile" src="${TILE_URL(z,wx,ty)}" alt="" loading="eager" draggable="false"
+      style="left:${Math.round(tx*TILE-px)}px;top:${Math.round(ty*TILE-py)}px">`;
+  }
+  world.innerHTML=html;
+  world.querySelectorAll('.map-tile').forEach(t=>{
+    t.addEventListener('error',()=>{if(++mapS.fail>=4&&!mapS.ok)exFallback(true);});
+    t.addEventListener('load',()=>{mapS.ok++;});
+  });
+  if(marks){
+    const counts={}; exFiltered().forEach(c=>{counts[c.venue]=(counts[c.venue]||0)+1;});
+    marks.innerHTML=VIRI.venues.filter(v=>v.city===exCity().id).map(v=>{
+      const mx=lon2x(v.lon,z)*TILE-px, my=lat2y(v.lat,z)*TILE-py, k=counts[v.id]||0;
+      return `<button class="map-mark ${ex.venue===v.id?'is-on':''} ${k?'':'is-empty'}"
+        style="left:${mx.toFixed(1)}px;top:${my.toFixed(1)}px" data-action="ex-venue" data-id="${v.id}"
+        title="${escapeHTML(v.brand)} · ${escapeHTML(v.area)}"
+        aria-label="${escapeHTML(v.brand)}, ${escapeHTML(v.area)} — ${k} class${k===1?'':'es'}">${k||''}</button>`;
+    }).join('');
+  }
+}
+function exFallback(on){
+  mapS.dead=on;
+  const f=$('#ex-fallback'), w=$('#ex-world'), m=$('#ex-markers'), c=$('#ex-credit');
+  if(f)f.hidden=!on;
+  if(w)w.style.visibility=on?'hidden':'visible';
+  if(m)m.style.visibility=on?'hidden':'visible';
+  $('#ex-mapframe')?.classList.toggle('is-fallback',on);
+}
+function exBindMap(){
+  const frame=$('#ex-mapframe'); if(!frame)return;
+  if(mapS.city!==exCity().id||!mapS.cx)exFitCity();
+  mapS.fail=0;mapS.ok=0;
+  exDraw();
+  if(mapS.dead)exFallback(true);
+  const pt=e=>{const t=e.touches?e.touches[0]:e;return {x:t.clientX,y:t.clientY};};
+  const down=e=>{if(e.target.closest('.map-mark')||e.target.closest('.map-tools'))return;
+    const p=pt(e);mapS.pan={x:p.x,y:p.y,cx:mapS.cx,cy:mapS.cy};frame.classList.add('is-dragging');};
+  const move=e=>{if(!mapS.pan)return;const p=pt(e);
+    mapS.cx=mapS.pan.cx-(p.x-mapS.pan.x)/TILE;mapS.cy=mapS.pan.cy-(p.y-mapS.pan.y)/TILE;
+    exDraw();if(e.cancelable)e.preventDefault();};
+  const up=()=>{mapS.pan=null;frame.classList.remove('is-dragging');};
+  frame.addEventListener('mousedown',down);frame.addEventListener('touchstart',down,{passive:true});
+  window.addEventListener('mousemove',move);frame.addEventListener('touchmove',move,{passive:false});
+  window.addEventListener('mouseup',up);frame.addEventListener('touchend',up);
+}
+function exZoom(dir){
+  if(dir==='reset'){exFitCity();exDraw();return;}
+  const z=Math.min(18,Math.max(10,mapS.z+(dir==='in'?1:-1)));
+  if(z===mapS.z)return;
+  const k=Math.pow(2,z-mapS.z);
+  mapS.cx*=k;mapS.cy*=k;mapS.z=z;
+  mapS.fail=0;
+  exDraw();
+}
+
+/* ---- people ---- */
+function exAvatars(ids,max){
+  const shown=ids.slice(0,max||4);
+  return `<span class="av-stack">${shown.map(id=>{const p=exPerson(id);
+    return `<span class="av" title="${escapeHTML(p?p.name:'')}">${escapeHTML(initials(p?p.name:'V'))}</span>`;}).join('')}${
+    ids.length>shown.length?`<span class="av av-more">+${ids.length-shown.length}</span>`:''}</span>`;
+}
+const exLinked=id=>state.connections.includes(id)?'connected':(state.requests||[]).includes(id)?'requested':'none';
+function exConnectBtn(p){
+  const s=exLinked(p.id);
+  return `<button class="button small ${s==='none'?'':'outline'}" data-action="ex-connect" data-id="${p.id}"
+    aria-pressed="${s!=='none'}" ${s==='connected'?'disabled':''}>${
+    s==='connected'?'Connected &#10003;':s==='requested'?'Requested':'Connect'}</button>`;
+}
+function exPersonCard(p,cls){
+  return `<article class="person">
+    <button class="person-av" data-action="ex-person" data-id="${p.id}" aria-label="View ${escapeHTML(p.name)}'s profile">${escapeHTML(initials(p.name))}</button>
+    <div class="person-body">
+      <h4>${escapeHTML(p.name)}</h4>
+      <p class="person-meta">${escapeHTML(p.area)} &middot; ${p.months} month${p.months===1?'':'s'} on ViRi &middot; ${p.classes} classes</p>
+      <p class="person-line">${escapeHTML(p.line)}</p>
+      <p class="person-cats">${p.cats.map(c=>`<span class="tag">${escapeHTML(c)}</span>`).join('')}</p>
+    </div>
+    <div class="person-act">${exConnectBtn(p)}</div>
+  </article>`;
+}
+
+/* ---- class detail ---- */
+function exDetail(id){
+  const c=exClasses().find(x=>x.id===id); if(!c)return exMap();
+  const v=exVenue(c.venue), d=new Date(c.start);
+  const going=c.going.map(exPerson).filter(Boolean);
+  return `<div class="cls-detail">
+    <button class="plain-link" data-action="ex-back">&larr; Back to the map</button>
+    <p class="eyebrow">${escapeHTML(v.brand)} &middot; ${escapeHTML(c.area)}</p>
+    <h2>${escapeHTML(c.title)}</h2>
+    <p class="cls-when">${d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})}
+      &middot; ${prettyTime(c.start)} &middot; ${c.dur} min &middot; with ${escapeHTML(c.coach)}</p>
+    <p class="small">${c.spots} spot${c.spots===1?'':'s'} left of ${c.cap} &middot; sample availability</p>
+    <div class="cls-actions">
+      ${state.joined.includes(c.id)?`<button class="button small outline" data-action="join-event" data-id="${c.id}" aria-pressed="true">On your plan &#10003;</button>`
+      :`<a class="button small" href="#/book/${c.id}">Add to my plan</a>`}
+      <a class="text-link" href="#/studios">About ${escapeHTML(v.brand)} ${arrow}</a>
+    </div>
+    <div class="roster">
+      <div class="roster-head">
+        <h3>${going.length?`${going.length} ViRi member${going.length===1?'':'s'} going`:'No members going yet'}</h3>
+        ${going.length?`<p class="small">Reach out before class so you already know a face.</p>`
+          :`<p class="small">Add it to your plan and you will be the first &mdash; anyone browsing this class will see you here.</p>`}
+      </div>
+      ${going.map(p=>exPersonCard(p,c)).join('')}
+    </div>
+  </div>`;
+}
+
+function exPanel(){return ex.cls?exDetail(ex.cls):exMap();}
+
+/* ---- class list ---- */
+function exRow(c){
+  const v=exVenue(c.venue);
+  return `<button class="cls-row ${ex.cls===c.id?'is-on':''}" data-action="ex-class" data-id="${c.id}">
+    <span class="cls-time"><b>${prettyTime(c.start)}</b><span>${c.dur} min</span></span>
+    <span class="cls-main">
+      <span class="cls-title">${escapeHTML(c.title)}</span>
+      <span class="cls-sub">${escapeHTML(v.brand)} &middot; ${escapeHTML(c.area)} &middot; ${escapeHTML(c.coach)}</span>
+    </span>
+    <span class="cls-going">${c.going.length?exAvatars(c.going,3)+`<span class="cls-n">${c.going.length} going</span>`
+      :`<span class="cls-n cls-none">Be the first</span>`}</span>
+  </button>`;
+}
+function exList(){
+  const list=exFiltered();
+  const head=`<p class="small ex-count" role="status">${list.length} class${list.length===1?'':'es'}${
+    ex.venue?` at ${escapeHTML(exVenue(ex.venue).brand)}, ${escapeHTML(exVenue(ex.venue).area)}`:''}
+    ${ex.venue?`<button class="plain-link" data-action="ex-venue" data-id="">Clear studio</button>`:''}</p>`;
+  if(!list.length)return head+`<div class="empty-state">
+    <h3>Nothing on this day yet.</h3><p>Try another day, another activity, or clear the studio filter.</p>
+    <button class="button small outline" data-action="ex-reset" style="margin-top:18px">Clear filters</button></div>`;
+  return head+`<div class="cls-list">${list.map(exRow).join('')}</div>`;
+}
+
+/* ---- page ---- */
+function explorePage(){
+  const city=exCity();
+  return `<section class="page-head"><div class="wrap"><div class="page-head-row">
+    <div><p class="eyebrow">${escapeHTML(city.name)}</p>
+    <h1>Find the class. Find the people in it.</h1>
+    <p>Every studio near you, every class this week, and who from ViRi is already going.</p></div>
+    <button class="button" data-action="create-event">Create an activity ${arrow}</button>
+  </div></div></section>
+  <div class="wrap">
+    ${note('Studio locations are approximate and every class time, instructor, roster and member profile in this preview is sample data. Adding a class saves a plan on this device; it does not book anything.')}
+    <div class="ex-cities" role="tablist" aria-label="City">${VIRI.cities.map(c=>
+      `<button role="tab" class="city-tab ${c.id===ex.city?'active':''}" data-action="ex-city" data-id="${c.id}"
+        aria-selected="${c.id===ex.city}">${escapeHTML(c.name)}</button>`).join('')}</div>
+    <div class="ex-days">${exDays().map(d=>
+      `<button class="day-tab ${d.i===ex.day?'active':''}" data-action="ex-day" data-day="${d.i}"
+        aria-pressed="${d.i===ex.day}"><b>${d.label}</b><span>${d.sub}</span></button>`).join('')}</div>
+    <div class="toolbar">
+      <label class="search-field"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="m15 15 6 6"/></svg>
+        <input type="search" id="ex-search" aria-label="Search classes" placeholder="Search a class, studio, coach or neighborhood" value="${escapeHTML(ex.query)}"></label>
+      <select id="ex-time" aria-label="Time of day">${['All','Early','Midday','Evening'].map(t=>
+        `<option value="${t}" ${t===ex.time?'selected':''}>${t==='All'?'Any time':t==='Early'?'Before 9am':t==='Midday'?'9am – 4pm':'After 4pm'}</option>`).join('')}</select>
+      <button class="chip ${ex.members?'active':''}" data-action="ex-members" aria-pressed="${ex.members}">Members going</button>
+    </div>
+    <div class="chips" aria-label="Activity">${['All'].concat(VIRI.categories).map(c=>
+      `<button class="chip ${ex.cat===c?'active':''}" data-action="ex-cat" data-cat="${c}" aria-pressed="${ex.cat===c}">${c}</button>`).join('')}</div>
+    <div class="ex-layout">
+      <div class="ex-panel" id="ex-panel">${exPanel()}</div>
+      <div class="ex-side" id="ex-side">${exList()}</div>
+    </div>
+    <div class="community-banner">
+      <div><h3>Start something of your own.</h3>
+      <p>A walk, a workout, or a weekly running club. Make room for someone new.</p></div>
+      <button class="button outline" data-action="create-club">Create a club ${arrow}</button>
+    </div>
+    <section class="section" style="padding-top:0"><div class="section-head" data-reveal>
+      <h2 class="section-title">Community clubs</h2></div>
+      <div class="explore-grid">${[...seedClubs,...state.created].slice(0,3).map(eventCard).join('')}</div>
+    </section>
+  </div>`;
+}
+function exRefresh(both){
+  const p=$('#ex-panel'), s=$('#ex-side');
+  if(s)s.innerHTML=exList();
+  if(p&&both!==false){p.innerHTML=exPanel();exBindMap();}
+}
+function exPersonModal(id){
+  const p=exPerson(id); if(!p)return;
+  const upcoming=exClasses().filter(c=>c.going.includes(id)&&c.start>Date.now()).slice(0,4);
+  openModal(escapeHTML(p.name),`<p class="modal-meta">${escapeHTML(p.area)} &middot; ${escapeHTML((VIRI.cities.find(c=>c.id===p.city)||{}).name||'')}</p>
+    <p>${escapeHTML(p.line)}</p>
+    <p class="person-cats">${p.cats.map(c=>`<span class="tag">${escapeHTML(c)}</span>`).join('')}</p>
+    <p class="small">${p.months} month${p.months===1?'':'s'} on ViRi &middot; ${p.classes} classes logged &middot; illustrative profile</p>
+    ${upcoming.length?`<h3 class="modal-sub">Also going to</h3><ul class="modal-list">${upcoming.map(c=>{
+      const v=exVenue(c.venue);return `<li>${escapeHTML(c.title)} &middot; ${escapeHTML(v.brand)} &middot; ${prettyDate(c.start)} ${prettyTime(c.start)}</li>`;}).join('')}</ul>`:''}
+    <div class="dialog-actions">${exConnectBtn(p)}
+      <button class="button small outline" data-action="close-modal">Close</button></div>`);
+}
+function exConnect(id){
+  const p=exPerson(id); if(!p)return;
+  if(!state.profile){toast('Create your profile first so they know who is reaching out.');location.hash='#/signup';return;}
+  state.requests=state.requests||[];
+  if(state.connections.includes(id))return;
+  if(state.requests.includes(id)){state.requests=state.requests.filter(x=>x!==id);toast('Request withdrawn.');}
+  else{state.requests.push(id);toast(`Request sent to ${p.name}. They will see it before class.`);}
+  save();exRefresh();if($('#modal').open)exPersonModal(id);
+}
+
+
+function eventDetails(id){const e=allEvents().find(x=>x.id===id);if(!e)return;const s=studios.find(s=>s.id===e.studio);openModal(escapeHTML(e.title),`<p class="eyebrow">${escapeHTML(e.category)} · ${e.type==='club'?'Community club':'Group activity'}</p><p class="dialog-copy">${prettyDate(e.date)} at ${prettyTime(e.date)}<br>${e.duration} minutes · ${escapeHTML(e.place)}</p>${e.description?`<p style="margin-top:20px">${escapeHTML(e.description)}</p>`:''}<div class="notice-box small">${e.custom?'This activity was created in your local preview. It has not been posted to a live network.':'Example activity and approximate location. This is not a real class schedule or a confirmed booking.'}</div>${s?`<p>Interested in ${s.name}? Check its official site for actual locations, schedules, and booking.</p><p style="margin-top:10px"><a class="text-link" href="${s.url}" target="_blank" rel="noopener">Visit ${s.name} ${arrow}</a></p>`:''}<div class="dialog-actions"><button class="button outline small" data-action="show-map" data-id="${e.id}">Show on map</button><button class="button small" data-action="join-event" data-id="${e.id}">${state.joined.includes(e.id)?'Leave activity':'Join activity'}</button></div>`);}
+function toggleJoin(id){const known=allEvents().some(e=>e.id===id)||(typeof exClasses==='function'&&exClasses().some(c=>c.id===id));if(!known)return;const joined=state.joined.includes(id);state.joined=joined?state.joined.filter(x=>x!==id):[...state.joined,id];save();if($('#modal').open)closeModal();render(false);toast(joined?'Removed from your plans.':'Added to your plans. This preview does not make a booking.');}
+function createActivity(isClub=false){openModal(isClub?'Create your own club':'Make a plan. Invite your circle.',`<p class="small" style="margin-bottom:22px">This preview saves your ${isClub?'club':'activity'} on this device. It is not shared with other people.</p><form id="activity-form"><div class="field"><label for="activity-title">${isClub?'Club name':'Activity name'}</label><input id="activity-title" name="title" placeholder="${isClub?'The Sunday circle':'An easy run & a coffee'}" maxlength="75" required></div><div class="form-row"><div class="field"><label for="activity-category">Movement</label><select id="activity-category" name="category">${['Running','Yoga','Pilates','Cycling','Barre','Strength'].map(c=>`<option>${c}</option>`).join('')}</select></div><div class="field"><label for="activity-area">Neighborhood</label><select id="activity-area" name="area">${['Georgetown','Dupont Circle','NoMa','Capitol Hill','Logan Circle'].map(c=>`<option>${c}</option>`).join('')}</select></div></div><div class="field"><label for="activity-place">Meeting point</label><input id="activity-place" name="place" placeholder="A park entrance or studio" maxlength="120" required></div><div class="form-row"><div class="field"><label for="activity-date">${isClub?'First meetup':'Date & time'}</label><input type="datetime-local" id="activity-date" name="date" min="${dateOffset(0,0)}" value="${dateOffset(1,9)}" required></div><div class="field"><label for="activity-duration">Minutes</label><input type="number" id="activity-duration" name="duration" min="10" max="480" value="45" required></div></div><div class="field"><label for="activity-description">A little about the ${isClub?'club':'plan'}</label><textarea id="activity-description" name="description" maxlength="500" placeholder="What should someone know before joining?"></textarea></div><p id="activity-error" class="field-error" role="alert"></p><div class="dialog-actions"><button type="button" class="button outline small" data-action="close-modal">Cancel</button><button class="button small" type="submit">${isClub?'Create club':'Post to my preview'}</button></div></form>`,()=>{$('#activity-form').addEventListener('submit',e=>{e.preventDefault();const f=Object.fromEntries(new FormData(e.target));if(!f.title.trim()||!f.place.trim()){$('#activity-error').textContent='Add an activity name and meeting point.';return;}if(new Date(f.date)<=new Date()){$('#activity-error').textContent='Choose a time in the future.';return;}const ref=seedEvents.find(e=>e.area===f.area)||seedEvents[0];const photo=null;/* a member's own activity has no photograph of its own */const entry={...f,title:f.title.trim(),place:f.place.trim(),id:'custom-'+crypto.randomUUID(),custom:true,type:isClub?'club':'event',img:photo,duration:Number(f.duration),people:0,host:state.profile?.name||'Your circle',lat:ref.lat,lon:ref.lon};state.created.push(entry);state.joined.push(entry.id);save();explore={...explore,kind:isClub?'clubs':'classes',category:'All',area:'All neighborhoods',query:'',view:'list'};closeModal();location.hash='#/explore';render(false);toast(`${isClub?'Club':'Activity'} created in your preview.`);});});}
+function studiosPage(id){if(id){const s=studios.find(s=>s.id===id);if(!s)return notFound();return `<section class="page-head"><div class="wrap"><a class="text-link" href="#/studios">${arrowLeft} All studios</a><p class="eyebrow" style="margin-top:28px">${s.category}</p><h1>${s.name}</h1></div></section><div class="wrap studio-detail"><img src="${A+studioPhoto(s)}" alt="A studio space of the kind ${s.name} runs"><div class="studio-description"><h2>${s.intro}</h2><p>${s.description}</p><div class="studio-facts"><div><span class="small">The movement</span><br>${s.focus}</div></div><p class="small"><strong>Before you go</strong><br>${s.bring} Locations, formats, and amenities vary; confirm with the studio.</p><div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:20px"><a class="button" href="${s.url}" target="_blank" rel="noopener">Visit studio website ${arrow}</a><button class="button outline" data-action="save-studio" data-id="${s.id}" aria-pressed="${state.saved.includes(s.id)}">${state.saved.includes(s.id)?'Saved ✓':'Save studio'}</button></div></div></div><div class="wrap">${note('Studio listings are for discovery. ViRi has no booking integration or confirmed partnership with these brands.')}<div class="community-banner"><div><h3>Find someone to go with.</h3><p>Explore shared plans and people who enjoy ${s.category.toLowerCase()}.</p></div><a href="#/explore" class="button" data-action="studio-explore" data-category="${s.category}">Explore ${s.category.toLowerCase()} ${arrow}</a></div></div>`;}return `<section class="page-head"><div class="wrap"><p class="eyebrow">Discover a new ritual</p><h1>A studio for every kind of you.</h1><p>Find your favorite place to move, then find your people.</p></div></section><section class="wrap" style="padding-bottom:80px"><div class="explore-grid">${studios.map(studioCard).join('')}</div></section>`;}
+const phMark=()=>`<svg viewBox="0 0 48 40" aria-hidden="true"><rect x="1" y="1" width="46" height="38" rx="1"/><circle cx="16" cy="14" r="4.2"/><path d="M4 33l12-11 8 7 7-6 13 11"/></svg>`;
+function aboutPage(){return `<section class="about-hero is-placeholder"><div class="about-hero-ph" aria-hidden="true"><span class="ph-mark">${phMark()}</span><span class="ph-cap">Hero photograph<br>to come</span></div><div class="wrap"><p class="eyebrow">Vitality Ritual</p><h1>Build Community<br>Around What<br>Moves You.</h1>${button('join now','#/signup','light')}</div></section><section class="section"><div class="wrap about-story"><h2>Make a big city<br>feel a little smaller.</h2><div class="prose"><p>ViRi is a social network for people who want to live actively and connect locally. Build your own network circle by discovering people in your area who share your interests, attend the same studios, take similar classes, follow similar routines, or have similar schedules.</p><p>Whether it’s finding a Pilates or yoga class, joining a workout community, or creating your own running club, ViRi helps you connect with people outside your existing network from across your city. Meet new people, build your community, and create your own corner of the city.</p></div></div></section>
+<section class="philosophy" data-reveal><div class="philosophy-band">
+  <figure class="philosophy-media"><img src="${A}studio-sculpt.jpg" alt="Women working out together in a bright studio" loading="lazy"></figure>
+  <div class="philosophy-copy">
+    <p class="eyebrow">Our philosophy</p>
+    <h2>The workout was never the hard part.</h2>
+    <p>Most people in a new city already know what they want to do. They know the class, the route, the hour that works. What they do not have is anyone to do it with, and that is the part no fitness app has tried to solve. Studios sell you a spot in a room. They do not introduce you to the person on the next mat.</p>
+    <p>So ViRi starts from the other end. You tell us what you already do and when you already do it, and we show you the women nearby doing the same thing at the same time \u2014 not strangers to be matched with, but people you were going to stand beside anyway.</p>
+    <p>The research here is unglamorous and consistent: people who train alongside others, in groups that feel like groups rather than rooms full of individuals, stay with it markedly longer than people training alone. Belonging is one of the strongest predictors of whether someone is still showing up months later. The social part is not a nice extra on top of the habit. It is what makes the habit hold.</p>
+    <p class="philosophy-note">Our co-founder Margaret holds a BA in sociology, where course after course came back to the same finding \u2014 that community and connection sit underneath physical and mental wellbeing rather than beside them. ViRi is that idea, built for the hour of the day when people are already together and not yet talking.</p>
+    <p class="philosophy-source">On adherence and group cohesion, see Farrance, Tsofliou &amp; Clark, <a href="https://www.sciencedirect.com/science/article/pii/S0091743516300147" target="_blank" rel="noopener">Preventive Medicine</a>, 2016.</p>
+  </div>
+</div></section>
+<section class="section founders" data-reveal><div class="wrap founders-grid">
+  <div class="founders-copy">
+    <h2 class="founders-title"><span class="f-script">Meet&nbsp;the</span><span class="f-serif">Founders</span></h2>
+    <div class="prose">
+      <p>We grew up in Colorado, where being active was simply how you met people. You showed up to the same trail or the same class, and a summer later those faces were your friends. When we moved to Washington, DC, we kept the habit and lost the part that made it matter \u2014 the people.</p>
+      <p>We are not the only ones. Every week someone tells us they have a studio they love, a standing 6.45, a route they run alone, and still no one to text afterwards. The gap is not motivation. It is the ten minutes after class, when everyone files out and nobody says anything.</p>
+      <p>ViRi is our attempt to close it. Find the women already going where you are going, say hello before you get there, and let a shared hour turn into something that outlasts it. We hope it makes your corner of the city feel a little more like home.</p>
+    </div>
+    <p class="founders-sign"><span class="founder-signature">Margaret &amp; Annabel</span>
+      <span class="founders-role">Margaret Cole &amp; Annabel Green &middot; Co-founders</span></p>
+    <a class="button outline" href="#/connect">Connect with us ${arrow}</a>
+  </div>
+  <figure class="founders-photo" aria-label="Photograph of Margaret and Annabel — to come">
+    <span class="ph-mark">${phMark()}</span><span class="ph-cap">A photograph of<br>Margaret &amp; Annabel<br>to come</span>
+  </figure>
+</div></section>${joinSection()}`;}
+function contactPage(){return `<section class="page-head"><div class="wrap"><p class="eyebrow">Let’s connect</p><h1>Good things start<br>with a conversation.</h1><p>Meet the people behind ViRi.</p></div></section><div class="wrap"><div class="contact-grid">${[{name:'Margaret Cole',initials:'MC'},{name:'Annabel Green',initials:'AG'}].map(f=>`<article class="contact-card"><div class="founder-monogram">${f.initials}</div><h2>${f.name}</h2><p>Co-founder · Washington, DC</p><p>Building a community around movement, shared routines, and the people nearby.</p><div class="contact-actions"><button class="button small outline" data-action="contact-info" data-name="${f.name}" data-channel="Email">Email ${arrow}</button><button class="button small outline" data-action="contact-info" data-name="${f.name}" data-channel="LinkedIn">LinkedIn ${arrow}</button></div></article>`).join('')}</div><div class="notice-box" style="margin-top:-35px;margin-bottom:70px"><h3>Follow the next chapter.</h3><p style="margin-top:15px">ViRi’s Instagram, TikTok, and founder contact links are coming soon.</p><p class="small" style="margin-top:12px">Contact details and social account URLs have not been supplied for this preview.</p></div></div>`;}
+function authPage(login=false){return `<section class="auth-layout"><div class="auth-image"><img src="${A}studio-entry.jpg" alt="Two women arriving at the studio together"><h2>A new ritual.<br>A new circle.<br>A little more you.</h2></div><div class="auth-form"><p class="eyebrow">${login?'Welcome back':'Welcome to ViRi'}</p><h1>${login?'Back to your circle.':'Find your people.'}</h1><p>${login?'Open the profile saved on this device.':'Make room for movement and connection.'}</p>${note(login?'This is a local demo login. No password or email is sent.':'Create a demo profile on this device. No real account is created and no email is sent.')}<form id="auth-form">${!login?'<div class="field"><label for="auth-name">Your name</label><input id="auth-name" name="name" autocomplete="name" placeholder="First and last name" maxlength="60" required></div>':''}<div class="field"><label for="auth-email">Email address</label><input id="auth-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required></div>${!login?`<div class="field"><label for="auth-area">Your neighborhood</label><select id="auth-area" name="area"><option>Dupont Circle</option><option>Georgetown</option><option>NoMa</option><option>Capitol Hill</option><option>Logan Circle</option><option>Elsewhere</option></select></div><fieldset class="interest-fieldset"><legend>What moves you?</legend><div class="interest-choices">${['Pilates','Yoga','Cycling','Running','Barre','Strength'].map(c=>`<label><input type="checkbox" name="interests" value="${c}"> ${c}</label>`).join('')}</div></fieldset>`:''}<p id="auth-error" class="field-error" role="alert"></p><button class="button" type="submit" style="margin-top:18px">${login?'Open my profile':'Create my demo profile'}</button></form><p class="small">${login?'New here? <a href="#/signup">Join ViRi</a>':'Already have a profile? <a href="#/login">Log in</a>'}</p><p class="small">${login?'<a href="#/profile">Explore the sample profile</a>':'Your preview data stays in this browser. <a href="#/privacy">Learn more</a>'}</p></div></section>`;}
+function bindAuth(login){$('#auth-form')?.addEventListener('submit',e=>{e.preventDefault();const fd=new FormData(e.target);const email=String(fd.get('email')).trim().toLowerCase();if(login){if(!state.profile||state.profile.email!==email){$('#auth-error').textContent='No profile with that email is saved in this browser. Create a demo profile to begin.';return;}toast('Welcome back to your circle.');}else{const name=String(fd.get('name')).trim();if(!name){$('#auth-error').textContent='Please enter your name.';return;}state.profile={name,email,area:fd.get('area'),interests:fd.getAll('interests')};save();toast('Account created. Two more questions.');location.hash='#/setup';return;}location.hash='#/profile';});}
+
+/* ===================== booking hand-off ===================== */
+function bookPage(id){
+  const c=(typeof exClasses==='function'?exClasses():[]).find(x=>x.id===id);
+  if(!c)return `<div class="wrap handoff"><div class="handoff-card"><h1>That class has gone.</h1>
+    <p>It may have already started, or the week has rolled over.</p>
+    <p style="margin-top:18px">${button('Back to Explore','#/explore','small')}</p></div></div>`;
+  const v=exVenue(c.venue), d=new Date(c.start), going=c.going.length;
+  return `<div class="wrap handoff"><div class="handoff-card">
+    <p class="eyebrow">Almost there</p>
+    <h1>Book this one with ${escapeHTML(v.brand)}</h1>
+    <p>ViRi holds your plan and introduces you to the room. The class itself is booked with the studio, the way you always have.</p>
+    <div class="handoff-class">
+      <b>${escapeHTML(c.title)}</b>
+      <span>${escapeHTML(v.brand)} &middot; ${escapeHTML(c.area)} &middot; with ${escapeHTML(c.coach)}</span>
+      <span>${d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})} &middot; ${prettyTime(c.start)} &middot; ${c.dur} min</span>
+      ${going?`<span>${going} ViRi member${going===1?'':'s'} already going</span>`:''}
+    </div>
+    <div class="handoff-choices">
+      <button class="choice" data-action="book-existing" data-id="${c.id}">
+        <span><b>I already book with ${escapeHTML(v.brand)}</b>
+        <span>Take me to their booking page and add this to my ViRi plan.</span></span>
+        ${arrow}</button>
+      <button class="choice" data-action="book-new" data-id="${c.id}">
+        <span><b>I need to set up an account</b>
+        <span>New to this studio. Show me how to sign up, then add it to my plan.</span></span>
+        ${arrow}</button>
+      <button class="choice" data-action="book-plan" data-id="${c.id}">
+        <span><b>Just add it to my plan for now</b>
+        <span>I will sort the booking out myself. Put me on the roster so people can find me.</span></span>
+        ${arrow}</button>
+    </div>
+    <p class="handoff-foot">This preview does not connect to ${escapeHTML(v.brand)} yet, so nothing is reserved and no account is created. When it does, this is where the hand-off happens — see README-explore.md for which booking platform each studio runs on.</p>
+    <p class="handoff-foot"><a class="plain-link" href="#/explore">&larr; Back to Explore</a></p>
+  </div></div>`;
+}
+function bookChoose(id,kind){
+  const c=(typeof exClasses==='function'?exClasses():[]).find(x=>x.id===id);
+  if(!c)return;
+  if(!state.joined.includes(c.id)){state.joined=[...state.joined,c.id];save();}
+  const v=exVenue(c.venue);
+  const copy=kind==='existing'
+    ? `In the live product this would open ${v.brand}'s booking page with the class preselected. Added to your plan here.`
+    : kind==='new'
+    ? `In the live product this would walk you through setting up a ${v.brand} account. Added to your plan here.`
+    : 'Added to your plan. You are on the roster for this class.';
+  toast(copy);
+  location.hash='#/profile';
+}
+
+/* ===================== profile setup ===================== */
+const SETUP_TIMES=['Before work','Mornings','Lunchtime','After work','Evenings','Weekends'];
+function setupPage(){
+  const p=state.profile;
+  if(!p)return authPage();
+  const areas=(VIRI.cities.find(c=>c.id==='dc')||VIRI.cities[0]).areas.map(a=>a.n);
+  return `<div class="wrap handoff"><div class="handoff-card">
+    <div class="setup-steps"><span class="setup-step">01 Account</span><span class="setup-rule"></span>
+      <span class="setup-step is-on">02 Your profile</span><span class="setup-rule"></span>
+      <span class="setup-step">03 Your circle</span></div>
+    <p class="eyebrow">Welcome, ${escapeHTML(p.name.split(' ')[0])}</p>
+    <h1>Tell people who they are meeting.</h1>
+    <p>This is what someone sees when they find you on a class roster. Everything here can be changed later.</p>
+    ${note('Draft fields — Margaret is still deciding what the real sign-up asks for. Saved to this device only.')}
+    <form id="setup-form" style="margin-top:8px">
+      <div class="setup-photo"><span class="av">${escapeHTML(initials(p.name))}</span>
+        <span>A profile photo goes here. Upload is not wired up in the preview — your initials stand in for now.</span></div>
+      <div class="field"><label for="su-area">Your neighborhood</label>
+        <select id="su-area" name="area">${areas.concat(['Elsewhere']).map(x=>
+          `<option ${x===p.area?'selected':''}>${escapeHTML(x)}</option>`).join('')}</select></div>
+      <fieldset class="interest-fieldset"><legend>What you do</legend>
+        <div class="interest-choices">${VIRI.categories.map(c=>
+          `<label><input type="checkbox" name="interests" value="${c}" ${(p.interests||[]).includes(c)?'checked':''}> ${c}</label>`).join('')}</div>
+      </fieldset>
+      <fieldset class="interest-fieldset"><legend>When you usually go</legend>
+        <div class="interest-choices">${SETUP_TIMES.map(t=>
+          `<label><input type="checkbox" name="times" value="${t}" ${(p.times||[]).includes(t)?'checked':''}> ${t}</label>`).join('')}</div>
+      </fieldset>
+      <div class="field"><label for="su-line">One line about you</label>
+        <input id="su-line" name="line" maxlength="120" placeholder="Signed up for a 10k and need people to run it with."
+          value="${escapeHTML(p.line||'')}"></div>
+      <p id="setup-error" class="field-error" role="alert"></p>
+      <button class="button" type="submit" style="margin-top:6px">Save and see my circle</button>
+    </form>
+    <p class="handoff-foot"><a class="plain-link" href="#/profile">Skip for now</a></p>
+  </div></div>`;
+}
+function bindSetup(){
+  $('#setup-form')?.addEventListener('submit',e=>{
+    e.preventDefault();
+    const fd=new FormData(e.target);
+    const interests=fd.getAll('interests');
+    if(!interests.length){$('#setup-error').textContent='Pick at least one thing you do — it is how people find you.';return;}
+    state.profile={...state.profile,area:fd.get('area'),interests,times:fd.getAll('times'),
+      line:String(fd.get('line')).trim()};
+    save();toast('Your profile is set. This is what a class roster will show.');
+    location.hash='#/profile';
+  });
+}
+function profilePage(){const p=state.profile;const name=p?.name||'Your name';const joined=allEvents().filter(e=>state.joined.includes(e.id));const saved=studios.filter(s=>state.saved.includes(s.id));return `<section class="page-head"><div class="wrap"><div class="page-head-row"><div><p class="eyebrow">Your corner of the city</p><h1>Your circle.</h1></div><div style="display:flex;gap:12px">${p?'<button class="button outline small" data-action="edit-profile">Edit profile</button>':button('Build your profile','#/signup','small')}<button class="button small" data-action="post-activity">Post an activity</button></div></div></div></section><div class="wrap">${note('This profile, feed, suggested people, and rewards demonstrate the experience. Your changes stay on this device.')}<div class="profile-grid"><aside class="profile-panel"><div class="profile-avatar">${p?escapeHTML(initials(p.name)):'ViRi'}</div><h2>${escapeHTML(name)}</h2><p class="location">${escapeHTML(p?.area||'Washington, DC')}</p><div class="profile-stats"><div><span>Friends</span><strong>${state.connections.length}</strong></div><div><span>Requests sent</span><strong>${(state.requests||[]).length}</strong></div><div><span>Studios</span><strong>${saved.length}</strong></div><div><span>Activities</span><strong>${state.posts.length}</strong></div></div><div class="interests">${(p?.interests||['Pilates','Yoga','Running']).map(c=>`<span>${escapeHTML(c)}</span>`).join('')}</div><h3>Upcoming activities</h3>${joined.length?joined.map(e=>`<div class="upcoming-row"><span class="small">${prettyDate(e.date)} · ${prettyTime(e.date)}</span><strong>${escapeHTML(e.title)}</strong><button class="plain-link small" data-action="event-details" data-id="${e.id}">View plan</button></div>`).join(''):'<p class="small">Your next ritual starts with a plan. Join an activity to see it here.</p>'}<a class="text-link" href="#/explore" style="margin-top:20px">Find an activity ${arrow}</a><h3>Saved studios</h3>${saved.length?saved.map(s=>`<a class="upcoming-row" style="display:block" href="#/studios/${s.id}">${s.name} ${arrow}</a>`).join(''):'<p class="small">Keep your favorite studios close. Save one while you explore.</p>'}<h3>Your ritual rewards</h3><p>${state.posts.length*100} points</p><p class="small">Demo points for showing up. Reward redemptions are not available in this preview.</p></aside><section class="profile-content"><h2>Feed</h2>${state.posts.slice().reverse().map(post=>`<article class="feed-card"><div class="feed-author"><span class="mini-avatar">${escapeHTML(initials(p?.name||'You'))}</span><div>${escapeHTML(p?.name||'You')}<p class="small">Your activity · ${prettyDate(post.date)}</p></div></div><h3>${escapeHTML(post.title)} · ${post.duration} min</h3><p>${escapeHTML(post.description)}</p><p class="small" style="margin-top:15px">+100 ritual points · Preview</p></article>`).join('')}<article class="feed-card"><div class="feed-author"><span class="mini-avatar">JC</span><div>Jamie’s circle<p class="small">Sample member · Example activity</p></div></div><h3>CycleBar · 45 min</h3><p>A morning ride and a new reason to get out the door. Who’s joining next time?</p><img src="${A}brand-cyclebar.webp" alt="Riders in a CycleBar class"><a class="text-link" href="#/explore">Find a ride ${arrow}</a></article><article class="feed-card"><p class="eyebrow">Your next connection</p><h3>The best part might be after class.</h3><p style="margin-top:15px">Invite someone to stay for a coffee. A shared routine starts with one small plan.</p><button class="button outline small" style="margin-top:20px" data-action="create-event">Make a plan</button></article></section><aside class="profile-aside"><h2>Suggested</h2>${eventCard(seedEvents[0])}<div class="contact-card" style="padding:25px;margin-top:25px"><div class="profile-avatar">AL</div><h3>Alex’s circle</h3><p class="small">Sample member · Georgetown</p><p>Early morning movement, easy runs, and coffee after class.</p><div class="interests" style="margin:20px 0"><span>Running</span><span>Yoga</span></div><button class="button small outline" data-action="connect-sample" aria-pressed="${state.connections.includes('alex')}">${state.connections.includes('alex')?'Connected ✓':'Connect'}</button></div></aside></div></div>`;}
+function postActivity(){openModal('How did you move today?',`<p class="small" style="margin-bottom:20px">Post to your local preview feed and earn 100 demo ritual points.</p><form id="post-form"><div class="field"><label for="post-title">Your activity</label><input id="post-title" name="title" required maxlength="70" placeholder="A lunchtime walk with a friend"></div><div class="field"><label for="post-duration">Minutes</label><input id="post-duration" name="duration" type="number" min="1" max="1440" value="45" required></div><div class="field"><label for="post-description">How was it?</label><textarea id="post-description" name="description" maxlength="400" placeholder="Share a little about your ritual."></textarea></div><div class="dialog-actions"><button class="button small" type="submit">Post activity</button></div></form>`,()=>$('#post-form').addEventListener('submit',e=>{e.preventDefault();const f=Object.fromEntries(new FormData(e.target));if(!f.title.trim())return;state.posts.push({...f,title:f.title.trim(),duration:Number(f.duration),date:new Date().toISOString()});save();closeModal();render(false);toast('Activity added. You earned 100 demo ritual points.');}));}
+function legalPage(privacy){return `<article class="article-detail"><p class="eyebrow">ViRi preview</p><h1>${privacy?'Your privacy':'About this preview'}</h1>${privacy?'<p>Your demo profile, saved studios, activities, connections, and posts are stored in this browser’s local storage. They are not sent to a ViRi account service.</p><p>The map loads from OpenStreetMap. Opening external studio and research links takes you to those websites, which have their own privacy practices.</p><p>This notice describes the prototype. A launch privacy policy will be provided before live accounts become available.</p><button class="button outline" data-action="clear-preview">Clear my preview data</button>':'<p>This website is an interactive preview of ViRi. Demo profiles, events, reviews, attendance counts, and rewards are illustrative. No class reservation, purchase, message, or live social connection is made through the preview.</p><p>Studio names and photographs identify the respective businesses. Listings do not imply a partnership or endorsement. Visit each studio’s official website to confirm schedules, prices, requirements, and bookings.</p><p>Launch terms will be provided before real accounts or bookings are available.</p>'}</article>`;}
+function notFound(){return `<section class="section wrap"><h1>Let’s find your way back.</h1><p style="margin:25px 0">This page isn’t part of your circle just yet.</p>${button('Back to ViRi','#/')}</section>`;}
+function initWordmark(){
+  const mark=$('#mark');
+  if(!mark||mark.dataset.built)return;
+  mark.dataset.built='1';
+  $$('.mark-word',mark).forEach(word=>{
+    const keep=Number(word.dataset.keep||0);
+    const letters=[...word.textContent];
+    word.textContent='';
+    letters.forEach((ch,i)=>{
+      const span=document.createElement('span');
+      span.className='mark-letter '+(i<keep?'is-kept':'is-drop');
+      span.textContent=ch;
+      word.appendChild(span);
+    });
+  });
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){mark.classList.add('is-merged');return;}
+  requestAnimationFrame(()=>{
+    $$('.mark-letter',mark).forEach(el=>{el.style.width=el.getBoundingClientRect().width+'px';});
+    requestAnimationFrame(()=>{
+      setTimeout(()=>{
+        mark.classList.add('is-animating');
+        setTimeout(()=>mark.classList.add('is-merged'),1500);
+      },700);
+    });
+  });
+}
+/* Split a heading into word-level masks so it can rise from behind an edge. */
+function maskText(el){
+  if(!el||el.dataset.masked)return;
+  el.dataset.masked='1';
+  const out=document.createDocumentFragment();
+  let i=0;
+  const pushWord=(node)=>{
+    const wrap=document.createElement('span');
+    wrap.className='ml';
+    const inner=document.createElement('span');
+    inner.className='mi';
+    inner.style.transitionDelay=(i++*55)+'ms';
+    inner.appendChild(node);
+    wrap.appendChild(inner);
+    out.appendChild(wrap);
+    out.appendChild(document.createTextNode(' '));
+  };
+  [...el.childNodes].forEach(node=>{
+    if(node.nodeType===3){
+      node.textContent.split(/\s+/).filter(Boolean).forEach(w=>pushWord(document.createTextNode(w)));
+    } else if(node.nodeName==='BR'){
+      out.appendChild(document.createElement('br'));
+    } else {
+      pushWord(node.cloneNode(true));
+    }
+  });
+  el.innerHTML='';
+  el.appendChild(out);
+  el.classList.add('is-masked');
+  /* headings that sit outside a scroll-reveal wrapper play on load */
+  if(!el.closest('[data-reveal]')) requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('is-shown')));
+}
+const MASK_SELECTOR='.section-title,.statement h2,.feature-panel h2,.feature-copy h2,.page-head h1,.about-hero h1,.join-inner h2,.longevity-inner h2,.about-story h2,.article-detail h1,.testimonial blockquote,.auth-form h1,.auth-image h2';
+
+/* The pinned Connect sequence: three steps, three photographs, one scroll. */
+function initConnect(){
+  const wrap=$('#connect-wrap');
+  if(!wrap)return;
+  const shots=$$('.connect-shot',wrap), steps=$$('.panel-list li',wrap);
+  if(!shots.length)return;
+  const sticky=$('.feature-connect',wrap);
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const flat=()=>matchMedia('(max-width: 900px)').matches||reduced;
+  const HYST=0.14;
+  let current=-1, queued=false, travel=0;
+  const measure=()=>{
+    const top=parseFloat(getComputedStyle(sticky).top)||0;
+    travel=wrap.offsetHeight-sticky.offsetHeight-top;
+  };
+  const setStep=n=>{
+    if(n===current)return;
+    current=n;
+    shots.forEach((el,i)=>el.classList.toggle('is-on',i<=n));
+    steps.forEach((el,i)=>el.classList.toggle('is-on',i===n));
+  };
+  const update=()=>{
+    queued=false;
+    if(flat()){setStep(0);return;}
+    if(travel<=0){measure();if(travel<=0){setStep(0);return;}}
+    const r=wrap.getBoundingClientRect();
+    const raw=Math.min(Math.max(-r.top/travel,0),0.9999)*shots.length;
+    let n=Math.floor(raw);
+    if(current>=0){
+      if(n===current+1&&raw-n<HYST)n=current;
+      else if(n===current-1&&current-raw<HYST)n=current;
+    }
+    setStep(Math.min(Math.max(n,0),shots.length-1));
+  };
+  const onScroll=()=>{if(!queued){queued=true;requestAnimationFrame(update);}};
+  const onResize=()=>{measure();onScroll();};
+  window.addEventListener('scroll',onScroll,{passive:true});
+  window.addEventListener('resize',onResize);
+  window.addEventListener('load',onResize);
+  wrap._viriScroll=onScroll;
+  measure();update();
+}
+function initPageMotion(){
+  $$(MASK_SELECTOR).forEach(maskText);
+  initConnect();
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  $$('.film-hero video, .about-hero video').forEach(v=>{
+    const b=$(`[data-action="video-toggle"][data-video="${v.id}"]`)||$('.video-toggle');
+    const sync=()=>{b.innerHTML=v.paused?'▶ <span>Play film</span>':'Ⅱ <span>Pause film</span>';b.setAttribute('aria-label',v.paused?'Play background video':'Pause background video');};
+    v.addEventListener('play',sync);v.addEventListener('pause',sync);sync();
+  });
+  if(reduced||typeof IntersectionObserver==='undefined')return;
+  const targets=$$('[data-reveal]');
+  revealObserver=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('is-revealed');revealObserver.unobserve(entry.target);}}),{threshold:.08,rootMargin:'0px 0px -30px 0px'});
+  targets.forEach(el=>{el.classList.add('will-reveal');revealObserver.observe(el);});
+}
+function render(scroll=true){revealObserver?.disconnect();const [path,id]=(location.hash.replace(/^#\/?/,'')||'').split('/');let html;switch(path){case '':html=home();break;case 'explore':html=explorePage();break;case 'studios':html=studiosPage(id);break;case 'read':html=readPage(id);break;case 'about':html=aboutPage();break;case 'connect':html=contactPage();break;case 'signup':html=authPage();break;case 'login':html=authPage(true);break;case 'profile':html=profilePage();break;case 'setup':html=setupPage();break;case 'book':html=bookPage(id);break;case 'privacy':html=legalPage(true);break;case 'terms':html=legalPage(false);break;default:html=notFound();}$('#main').innerHTML=html;renderFooter();const names={'':'Vitality Ritual',explore:'Explore',studios:'Studios',read:'The ViRi edit',about:'About us',connect:'Connect',signup:'Join your circle',login:'Welcome back',profile:'Your circle',setup:'Your profile',book:'Book this class',privacy:'Your privacy',terms:'Preview terms'};document.title=`ViRi — ${names[path]||'Find your way'}`;$$('.site-header nav a').forEach(a=>{if(a.getAttribute('href')===`#/${path}`)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});$('#menu-panel').hidden=true;$('#menu-button').setAttribute('aria-expanded','false');if(scroll){window.scrollTo({top:0,behavior:'instant'});$('#main').focus({preventScroll:true});}initPageMotion();if(path==='signup'||path==='login')bindAuth(path==='login');if(path==='setup')bindSetup();
+  $('#subscribe-form')?.addEventListener('submit',e=>{e.preventDefault();
+    toast('Saved on this device only \u2014 the preview does not send email.');e.target.reset();});if(path==='explore'){$('#ex-search').addEventListener('input',e=>{ex.query=e.target.value;exRefresh();});$('#ex-time').addEventListener('change',e=>{ex.time=e.target.value;exRefresh();});exBindMap();}}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-action]');if(!t)return;const {action,id,index,category,view,kind,name,channel}=t.dataset;switch(action){case 'video-toggle':{const v=$('#'+(t.dataset.video||'about-video'));if(v.paused)v.play().catch(()=>toast('Video playback is unavailable in this browser.'));else v.pause();break;}case 'close-modal':closeModal();break;case 'studio-prev':studioIndex=(studioIndex+studios.length-1)%studios.length;$('#studio-grid').innerHTML=studioCards();break;case 'studio-next':studioIndex=(studioIndex+1)%studios.length;$('#studio-grid').innerHTML=studioCards();break;case 'ex-city':ex={...ex,city:t.dataset.id,venue:null,cls:null};render(false);break;
+case 'ex-day':ex={...ex,day:+t.dataset.day,cls:null};render(false);break;
+case 'ex-cat':ex={...ex,cat:t.dataset.cat,cls:null};render(false);break;
+case 'ex-members':ex={...ex,members:!ex.members,cls:null};render(false);break;
+case 'ex-time-set':ex={...ex,time:t.dataset.time};exRefresh();break;
+case 'ex-venue':ex={...ex,venue:t.dataset.id||null,cls:null};exRefresh();break;
+case 'ex-class':ex={...ex,cls:t.dataset.id};exRefresh();$('#ex-panel')?.scrollIntoView({block:'nearest'});break;
+case 'ex-back':ex={...ex,cls:null};exRefresh();break;
+case 'ex-person':exPersonModal(t.dataset.id);break;
+case 'ex-connect':exConnect(t.dataset.id);break;
+case 'write-story':writeStory(t.dataset.id);break;
+case 'copy-story':copyStory(t.dataset.id);break;
+case 'delete-story':state.drafts=(state.drafts||[]).filter(x=>x.id!==t.dataset.id);save();closeModal();location.hash='#/read';render(false);toast('Draft deleted.');break;
+case 'book-existing':bookChoose(t.dataset.id,'existing');break;
+case 'book-new':bookChoose(t.dataset.id,'new');break;
+case 'book-plan':bookChoose(t.dataset.id,'plan');break;
+case 'ex-zoom':exZoom(t.dataset.dir);break;
+case 'ex-reset':ex={...ex,cat:'All',time:'All',members:false,query:'',venue:null,cls:null};render(false);break;
+case 'explore-category':explore.category=category;render(false);break;case 'explore-view':explore.view=view;render(false);break;case 'explore-kind':explore.kind=kind;render(false);break;case 'reset-filters':explore={...explore,query:'',category:'All',area:'All neighborhoods'};render(false);break;case 'create-event':createActivity(false);break;case 'create-club':createActivity(true);break;case 'event-details':eventDetails(id);break;case 'join-event':toggleJoin(id);break;case 'show-map':closeModal();const target=allEvents().find(x=>x.id===id);explore={...explore,selected:id,kind:target?.type==='club'?'clubs':'classes',view:'map',category:'All',area:'All neighborhoods',query:''};if(location.hash!=='#/explore')location.hash='#/explore';else render(false);break;case 'save-studio':state.saved=state.saved.includes(id)?state.saved.filter(x=>x!==id):[...state.saved,id];save();render(false);toast(state.saved.includes(id)?'Studio saved to your profile.':'Studio removed from your saved list.');break;case 'studio-explore':explore={...explore,category,kind:'classes'};break;case 'read-filter':readCategory=category;render(false);break;case 'post-activity':postActivity();break;case 'connect-sample':state.connections=state.connections.includes('alex')?[]:['alex'];save();render(false);toast(state.connections.length?'Sample connection added to your preview.':'Sample connection removed.');break;case 'edit-profile':openModal('Make your profile yours',`<form id="edit-form"><div class="field"><label for="edit-name">Your name</label><input id="edit-name" name="name" value="${escapeHTML(state.profile?.name)}" required maxlength="60"></div><div class="field"><label for="edit-area">Your neighborhood</label><input id="edit-area" name="area" value="${escapeHTML(state.profile?.area)}" required maxlength="70"></div><div class="dialog-actions"><button class="button small" type="submit">Save profile</button></div></form>`,()=>$('#edit-form').addEventListener('submit',ev=>{ev.preventDefault();const f=Object.fromEntries(new FormData(ev.target));if(!f.name.trim()||!f.area.trim())return;state.profile={...state.profile,name:f.name.trim(),area:f.area.trim()};save();closeModal();render(false);toast('Profile updated.');}));break;case 'contact-info':openModal(`Connect with ${escapeHTML(name)}`,`<p class="dialog-copy">${escapeHTML(channel)} details will appear here when ${escapeHTML(name)}’s contact link is added.</p><p class="small" style="margin-top:18px">The website script did not include a verified ${escapeHTML(channel.toLowerCase())} address.</p><div class="dialog-actions"><button class="button small" data-action="close-modal">Got it</button></div>`);break;case 'clear-preview':openModal('Clear your preview?',`<p class="dialog-copy">This removes your demo profile, plans, posts, connections, and saved studios from this browser.</p><div class="dialog-actions"><button class="button outline small" data-action="close-modal">Keep my preview</button><button class="button small" data-action="confirm-clear">Clear preview</button></div>`);break;case 'confirm-clear':state={profile:null,joined:[],saved:[],created:[],posts:[],connections:[]};save();closeModal();render(false);toast('Your preview data has been cleared.');break;case 'credits':openModal('Photography',`<p class="dialog-copy">Images are shown for this design preview. Studio photography belongs to the respective brands and photographers.</p><p style="margin-top:18px">Running photograph: Tyler Nix / Unsplash, via Shape Republic. Pilates studio: Ohouse. Yoga class: Three Birds Yoga. Yoga mats: Mayo Clinic News Network. Brand imagery: CycleBar, [solidcore], Pure Barre, CorePower Yoga, SoulCycle, Orangetheory, Club Pilates, and Barry’s.</p><p class="small" style="margin-top:18px">Community photographs are AI-generated originals; the lifestyle photography was supplied for this preview.</p>`);break;}});
+$('#menu-button').addEventListener('click',()=>{const open=$('#menu-panel').hidden;$('#menu-panel').hidden=!open;$('#menu-button').setAttribute('aria-expanded',String(open));});
+document.addEventListener('click',e=>{if(!e.target.closest('.site-header')){$('#menu-panel').hidden=true;$('#menu-button').setAttribute('aria-expanded','false');}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){$('#menu-panel').hidden=true;$('#menu-button').setAttribute('aria-expanded','false');}});
+window.addEventListener('hashchange',()=>{if($('#modal').open)closeModal();render();});
+initWordmark();
+render(false);

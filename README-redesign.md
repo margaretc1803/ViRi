@@ -1,0 +1,332 @@
+# ViRi — elevated variant (dist-elevated)
+
+Built from `dist-marais` and redesigned to your template: greige ground, taupe panels, a
+high-contrast serif with a script accent. Your photographs throughout. The earlier folders
+(`dist/`, `dist-marais/`, `dist-airy/`, `dist-sante/`, `dist-sunday/`) are untouched.
+
+    python3 -m http.server 8000 --directory dist-elevated
+
+## The wordmark
+
+On load the header reads **Vitality Ritual**. After a beat every letter except the V, the first
+i, the R and its i collapses to zero width and fades, the space between the words closes, and the
+four survivors slide together into **ViRi**. It runs once per page load, not on every navigation,
+and under `prefers-reduced-motion` the header simply starts as ViRi.
+
+The other motion: the headline words rise in sequence, the cover photograph drifts slowly in and
+out, the inset card fades up over the hero edge, the feature photographs ease back from a slight
+zoom as they scroll into view, and cards lift on hover. Nothing loops in your face.
+
+## The system
+
+| Token | Value | Use |
+| --- | --- | --- |
+| `--cream` / `--cream-2` | `#e9e4dc` / `#f1ede6` | page, lighter band |
+| `--paper` | `#fbf9f5` | cards, dialog |
+| `--taupe` / `--taupe-deep` | `#7d6d60` / `#63554a` | panels, buttons, footer |
+| `--taupe-light` | `#bfb1a3` | decorative fills only, never behind text |
+| `--cocoa` | `#5a4433` | display headings |
+| `--muted` | `#665a4e` | body copy (4.9:1 on cream) |
+
+Your template's panel taupe is lighter than this. I darkened the text-bearing taupe so white type
+on it passes contrast — the lighter tone is still there as `--taupe-light` for decorative blocks.
+
+Type is **Bodoni Moda** (display, high contrast, set in caps like your reference), **Parisienne**
+(the script accent, used for *your* in the headline and the founder signatures) and **Jost**
+(body and every small label), all from Google Fonts.
+
+## Your photographs
+
+| Where | Photograph |
+| --- | --- |
+| Cover | the two women in the arched studio |
+| Cover inset | the ankle-weight detail |
+| Connect panel | the two women on reformers |
+| Longevity | the two women with coffees at the table |
+| About hero | the mat class |
+| Sign-up | walking into the studio |
+| The ViRi edit | lockers (wardrobe), running, studio entry |
+
+The cover is your wood-floor coffee photograph, clean, with **SOCIALIZE *your* FITNESS** set live
+over it so the type scales properly on a phone. The inset card below it is your pilates photograph
+at its own aspect ratio, so nothing is cropped, and it is centred by margin rather than by a
+transform — the entrance animation used to knock it off-centre.
+
+## Two things to check on your screen
+
+**Fonts.** My test environment cannot reach Google Fonts, so every screenshot I take renders
+fallback faces rather than the real ones. On your machine and on the published link they load
+normally. The wordmark is **Cormorant Garamond** in caps, matched by eye to the VIRI you sent —
+if it is not quite right, it is one line: `--mark` in `styles.css`. Headings stay Bodoni Moda, the
+script accent is Parisienne, body is Jost. Quotes moved out of the display serif into Jost, which
+is the readability fix you asked for.
+
+**The hero crop.** `object-position: center 32%` on `.cover-image` sets how the photograph sits
+behind the headline; nudge that percentage if the type lands awkwardly over the figures.
+
+## Preserved
+
+All 24 routes, hash routing, localStorage prototype state, signup/login, join/leave, saved
+studios, activity and club creation, feed posting, filters, search, map/list, carousel wrapping,
+scroll reveals, reduced-motion and print fallbacks, focus rings, and every preview disclaimer.
+
+## Checked
+
+All 24 routes at 1440 / 768 / 390px: no console errors from the app, no horizontal overflow.
+Interactions re-tested end to end. The wordmark morph verified to end on exactly "ViRi". Body copy
+sits at 4.9:1 on the cream ground.
+
+Not checked: Google Fonts and the OpenStreetMap embed, neither of which loads in my sandbox.
+
+## Rights
+
+The lifestyle photographs you supplied are third-party images, as is the studio photography that
+came with the original build. Fine for a private design review; both need clearing before this
+goes anywhere public.
+
+## This round (photo direction + the seal)
+
+**Photography.** The five pictures from your Pinterest folder are in, and the images that were
+fighting them are out. Cover is your café-table frame; the inset below it is the brown-legging
+detail; ritual steps 02 and 03 are the pilates balls and the overhead rug; Longevity is the
+plaster-wall stretch. The three generated `ritual-*.webp` squares, the burgundy `community-women.jpg`
+and the old cover pair are no longer referenced — still on disk if you want them back.
+
+Connect now moves through time rather than sitting still: empty studio, kit laid out, three women
+together. Frame three is `community-three.png`, not the café table, so the cover photograph isn't
+used twice on one page. About's hero is the wide studio frame, resized from 5512px to 2600px —
+7.3MB was slowing the page down for no visible gain.
+
+**The studio cards are typographic.** Every brand press photo is gone from the grid. Each studio is
+now its name set in Bodoni Moda on a taupe plate over its category. Coherent, and it sidesteps the
+logo-licensing question entirely.
+
+**The cover is a plate on a field.** The trail photograph runs the full height of the cover at its
+own 736:920 proportions, centred, with the greige ground either side. The left margin carries
+VITALITY RITUAL set vertically in small caps; the right carries the No. 02 seal above a hairline and
+EST. 2026. Nothing else — no eyebrow, no lede, no inset.
+
+The plate is `calc(var(--cover-h) * 0.8)` wide, which at the 820px height cap is 656px from a
+1472px file: roughly 2.3x oversampled, so it stays crisp on a retina screen. Crop is
+`object-position: center 46%` on `.cover-image`.
+
+Title contrast measured against the brightest tenth of the photograph behind each line:
+Socialize 6.2:1, your 5.8:1, Fitness 7.6:1 — all above the 4.5:1 threshold before the text-shadow
+is counted. If you change the crop, re-check that; the sand path is the bright spot to watch.
+
+**Cover typography.** Cormorant Garamond light, stacked on three lines, with *your* in the same
+family's italic at 0.78em. No script, no arch. Adjust in `.cover-title` in `styles.css`.
+
+**Monogram No. 02, the Seal.** Stamped on the cover photograph (its intended use), signed at the
+foot of every page, and reduced to circle-plus-VR for the favicon. The header keeps the
+Vitality Ritual → ViRi morph — the seal's ring type is illegible below about 60px, so it earns its
+place on photography rather than in the masthead.
+
+**Connect scrolling.** Three fixes. The scroll handler was re-measuring the section's geometry on
+every frame, forcing a layout recalculation mid-scroll — that is now cached and re-read only on
+resize. The frames cross-faded through the background; they now stack, so each one fades in over the
+last and nothing flashes. And the step descriptions animated `max-height`, which is a layout
+animation; they animate on grid rows instead. There is also a small dead zone at each boundary so a
+one-pixel scroll can't flip the frame back and forth.
+
+**The longevity statistic** is paired with the two women talking over coffee rather than the solo
+stretch. The claim is about social ties; the photograph should have more than one person in it.
+
+## This round
+
+**Connect scrolls one step per gesture.** The pinned section was 250vh, which meant about 510px of
+scrolling per step — two gestures. It is now `min(100svh - header, 640px) + 700px`, so the travel is
+a fixed 700px whatever the screen, or 207px per step. One scroll, one step.
+
+**The statistic band no longer crops.** `.feature-media` had a fixed height while the copy beside it
+set its own, so the photograph was cropped to a shape that had nothing to do with the row. The media
+is now `position:relative` with the image absolutely filling it, so it stretches to exactly the
+copy's height — measured at 494px and 494px.
+
+**Studio tiles reveal a photograph on hover** instead of just darkening, and the photograph now shows
+the thing the studio actually does — bikes for CycleBar and SoulCycle, a reformer floor for
+[solidcore] and Club Pilates, a barre room for Pure Barre, mats for CorePower, treadmills for
+Orangetheory and Barry's. Accuracy beat palette here: the two cycling photographs and the Barry's
+floor are dark, red-lit press shots, because there is no spin room or treadmill floor anywhere in the
+asset library shot in these colours. Two photographs would fix it — a lit spin room and a
+treadmill floor, both women-only — and they are the only real gap left in the set.
+
+**About.** New hero — your curtain-and-mats photograph, upscaled 2x before it ships so it renders
+about 1:1 rather than being stretched. The repeated 50% statistic is gone, replaced by **Our
+philosophy**: what the product actually claims, and why. The science paragraph is about adherence and
+group cohesion rather than survival odds, so it does not lean on the same study twice, and it cites
+Farrance, Tsofliou & Clark in Preventive Medicine. Margaret's sociology background is a short closing
+note rather than a headline — it reads as grounding there, and as overclaiming anywhere higher up.
+Each founder letter now has a dashed photo placeholder beside the signature.
+
+**Two new flows.** `#/book/:class` is the booking hand-off: already book with this studio, need to
+set up an account, or just hold the plan. `#/setup` is the profile step between creating an account
+and landing on the profile — neighborhood, what you do, when you go, one line about you, and a photo
+slot. Both are marked as drafts, because you said you would send the real fields.
+
+**Writing stories.** The Read page has a composer — headline, category, photograph, standfirst, body
+— that lays your draft out in the real design. It saves to your browser only: no server, so nothing
+you write there reaches anyone else or survives clearing site data. When a draft is right, **Copy for
+publishing** puts it on the clipboard and I bake it into the site permanently. A real CMS is the
+answer eventually; this is the honest version until there is a backend.
+
+## Corrections
+
+**The class list sat below the map, not beside it.** `exSchematic()` emitted one unbalanced
+`</div>`, left over when the drawn map became the tile map's fallback. The browser closed
+`.ex-panel` and `.ex-layout` early on it, which ejected the class list from the grid entirely. The
+grid itself was always correct. Fixed at the source, and the split now holds down to 660px rather
+than 900px, so it survives a narrow window or a side panel.
+
+**About** now opens on a marked placeholder rather than a photograph, ready for the real hero.
+
+**Our philosophy is its own band** — a full-width taupe panel with a photograph down the left,
+cream type on dark. It was reading as a continuation of the section above because it shared the
+ground, the width and the type.
+
+**The founders section is one letter, not two postcards**, laid out to your reference: a script and
+serif lockup, a joint message, one signature from both of you, and a portrait placeholder on the
+right for the photograph of the two of you.
+
+## Photography rules now in force
+
+**Retired, do not reuse:** `hero-running.jpg` (the track photograph) and `community-three.png` (the
+three women in rust and pink). Both are gone from every route and from the fallback photo map that
+new activities draw from; running activities now use `pin-stretch.jpg`.
+
+**Studio photographs are graded, not chosen for colour.** Each studio shows what it actually does,
+and the plate puts them all through one treatment so they can share a grid: `grayscale(1)` on the
+photograph, then a `--cocoa` layer in `multiply` at 72% and a vertical scrim over the top. CycleBar's
+red spin room and Barry's red floor come out the same warm monochrome as the cream studios. The
+studio detail pages get a lighter version of the same grade. To dial it, the two rules are
+`.plate-photo`'s filter and `.tile-plate:before`'s opacity in `styles.css`.
+
+**The script face is Italianno, not Parisienne.** Parisienne is a rounded brush script — friendly,
+and reads young. Italianno is a formal Spencerian script with long swashes and high stroke contrast,
+which is the register your reference was in. It is set through `--script` in `styles.css`, so it is
+one line to change: `Pinyon Script` is the more compact engraved alternative, and dropping to
+`Cormorant Garamond` italic removes the script entirely.
+
+**Placements now:** ritual 01 is a single figure (`pin-legs.jpg`), 02 the pilates balls, 03 the
+overhead rug. Connect closes on `pin-olive.jpg`. Club Pilates shows `pin-matclass.jpg`. The
+philosophy band shows `studio-sculpt.jpg`, which was freed by moving the shared-rituals article onto
+`detail-weights.jpg`.
+
+## Placeholders over bad fits
+
+A card can now carry a marked placeholder instead of a photograph (`img:null` on any event or club).
+Where nothing in the library is right, that is what goes in — a taupe square with a frame icon and
+PHOTO TO COME — rather than a picture that nearly works. The morning mat club is the first one:
+there is no yoga photograph here in these colours that does not have a problem.
+
+**Deleted from the build entirely, not just unreferenced:** `hero-yoga.png`, `hero-running.jpg`,
+`community-three.png`, `brand-orangetheory-run.jpg`, `community-women.jpg`, the three generated
+`ritual-*.webp` squares, `cover-coffee.jpg`, `cover-inset.jpg`, `about-studio.jpg` and
+`pin-olive.jpg`. They are off the disk, so none of them can come back by accident.
+
+**The Connect sequence** is a single figure (`pin-legs.jpg`), the kit laid out (`studio-still.jpg`),
+and two women sitting together (`pin-rug.jpg`). The dead `steps` array from an earlier layout has
+been deleted, as have the `img` fields on the `studios` array now that `STUDIO_PHOTO` owns that map.
+
+## One photograph, one subject
+
+No photograph now stands for two different things anywhere on the site. Every slot — cover,
+the three Connect frames, the statistic band, the philosophy band, the sign-up panel, eight studios,
+four articles, two sample clubs — holds a picture used for nothing else. Verified by walking all
+22 routes and comparing what renders.
+
+What does repeat is a subject appearing on its own card and its own page: Barry's photograph is on
+the Barry's tile and the Barry's page; an article's photograph is on its card and at the top of the
+article. That is identification rather than repetition, and removing it would mean a second
+photograph for every studio and every story — twelve more pictures that do not exist. If you
+would rather those slots were empty than repeated, the placeholder is one edit per slot.
+
+The sample activities and anything a member creates now carry the placeholder instead of borrowing a
+photograph from somewhere else on the site.
+
+## The ViRi edit gains its first real article
+
+**The Truth About the September Wellness Reset**, by Margaret Cole, 19 September 2026, is in as the
+first story on the Read page and the first card in the edit row on the home page. Margaret's text is
+unedited; the only things added around it are the standfirst on the card and under the photograph,
+and the link markup on the 2014 fresh-start-effect study.
+
+The article template now carries a byline: author and date in tracked small caps under the headline,
+and the standfirst set in Cormorant italic beneath the photograph. Any article with an `author` field
+gets both; the older sample stories have none, so they render as before.
+
+`Mindset` is a new category, sitting first in the Read filter chips. The photograph is `reading.jpg`
+and it appears nowhere else.
+
+## The article layout
+
+Rebuilt to the Every Girl reference. The masthead is two columns: category, headline, standfirst,
+then date and byline down the left; the photograph on the right at 4:5. Below that, a two-column
+body — a 230px rail on the left carrying the newsletter box and **Read next**, and the prose in a
+66ch column beside it. The rail is sticky, so both follow you down the page.
+
+Read next lists the three most recent other stories, newest first, each with category, headline and
+date. The newsletter box is preview-only: submitting it shows a notice and clears the field, because
+there is no server and no address goes anywhere.
+
+Cards carry the publish date under the number. Dates are stored as `YYYY-MM-DD` and built with
+`new Date(y, m-1, d)` rather than parsed from the string, which would otherwise render a day early
+in a US timezone. Both grids sort newest first, so **No. 01** is always the latest. The four sample
+stories carry invented past dates and will be replaced by real ones.
+
+**Margaret's article text is untouched.** The rendered paragraphs were diffed word for word against
+what she sent; only the surrounding layout changed.
+
+Two stale rules came out while doing this. A blanket `grayscale(1)` on `.tile-media img` was left
+from when studio press shots lived in the card grid — it had been draining the colour out of the
+article photographs, which is why the reading picture looked monochrome on its card and full colour
+on its page. And a `.map-frame` rule left from the OpenStreetMap iframe was desaturating the whole
+map, markers and credit chip included.
+
+The story composer now offers only photographs nothing else on the site uses, so writing a new piece
+cannot introduce a duplicate.
+
+## Stories tab removed
+
+The whole `#/reviews` route is gone: the page, the card builder only it used, the header and menu
+links, the footer link, and the "All member stories" link under the quote on the home page. The
+quote itself stays where it was, with its byline, because one line of testimony in the flow of the
+home page is worth more than a tab of invented ones. `#/reviews` now falls through to the not-found
+page. The `reviews` array stays in `app.js` — the home page quote reads from it.
+
+## Phones keep the desktop composition
+
+Asked for on 20 September: the site should look the same on a phone browser as it does on a
+desktop, rather than reflowing.
+
+The page used to tell phone browsers it was `width=device-width`, which put the viewport at around
+390 CSS pixels and fired every mobile breakpoint — cover rails hidden, the article photograph
+jumping above its title, the Explore map sitting on top of the class list instead of beside it, the
+footer collapsing to two columns. `index.html` now declares a fixed **1280px** canvas, so a phone
+lays the page out exactly as a desktop does and scales the whole thing to fit the screen.
+
+A short inline script re-asserts that at runtime. It is needed because some hosts — the published
+artifact link among them — inject their own `width=device-width` viewport tag and drop the one in
+the file. The script rewrites it on load and again at `DOMContentLoaded`.
+
+`html` also gained `text-size-adjust:100%`, without which iOS Safari inflates body text on a
+wide-viewport page and breaks the proportions it was asked to preserve.
+
+The mobile breakpoints stay in `styles.css`. At a 1280px viewport none of them fire, but they still
+do their job when a desktop window is narrowed, so nothing was deleted.
+
+Every viewport unit on the page was checked first: `--cover-h`, `.about-hero`, `.connect-wrap`,
+`.feature-connect`, `.cls-list` and `.roster` all use `min(Nsvh, Npx)`, so a scaled viewport
+resolves each of them to its pixel clamp rather than growing without limit. The Explore map already
+bound `touchstart` / `touchmove` / `touchend` alongside its mouse handlers, so panning works.
+
+Verified across emulated iPhone (390), iPhone SE (320), Android (412) and iPad (820), plus a local
+reconstruction of the artifact host's wrapper. All five produce identical computed layout values on
+five routes — same three-column card grid, cover rails present, article head and rail in two
+columns, classes to the right of the map, the pinned Connect sequence intact — and
+`scrollWidth === clientWidth` everywhere, so nothing overflows sideways.
+
+Two known consequences, both accepted. Text is about a third of its desktop size on a phone, which
+is the unavoidable cost of keeping a 1280px composition; pinch-zoom still works. And the studio
+photo reveal is a hover effect, so on a touch screen a studio tile stays in its resting state until
+it is tapped through.

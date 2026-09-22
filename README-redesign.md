@@ -294,7 +294,10 @@ quote itself stays where it was, with its byline, because one line of testimony 
 home page is worth more than a tab of invented ones. `#/reviews` now falls through to the not-found
 page. The `reviews` array stays in `app.js` — the home page quote reads from it.
 
-## Phones keep the desktop composition
+## Phones keep the desktop composition — SUPERSEDED 22 September 2026
+
+**This section describes behaviour that has since been reversed. See "Phones reflow again" at the
+end of this file.** Kept for the reasoning and the viewport-unit audit, both of which still hold.
 
 Asked for on 20 September: the site should look the same on a phone browser as it does on a
 desktop, rather than reflowing.
@@ -330,3 +333,47 @@ Two known consequences, both accepted. Text is about a third of its desktop size
 is the unavoidable cost of keeping a 1280px composition; pinch-zoom still works. And the studio
 photo reveal is a hover effect, so on a touch screen a studio tile stays in its resting state until
 it is tapped through.
+
+## Phones reflow again
+
+Asked for on 22 September: people opening the site on a phone should get a mobile version rather
+than a shrunken desktop one. This undoes the section above.
+
+**The viewport is `width=device-width, initial-scale=1, viewport-fit=cover`** and the inline script
+that re-asserted the 1280px canvas is deleted. The breakpoints that were dormant since 20 September
+— 660, 760, 820, 900, 980, 1040 and 1180px — now do the work they were written for. Nothing in
+them had to change: the responsive layer was still intact, which is why this was a small change
+rather than a rebuild.
+
+Four fixes on top of that:
+
+**The article photograph no longer jumps above its headline.** `.article-figure` carried
+`order:-1` in the 900px block, which put the picture first and pushed the category, headline and
+standfirst below it. Removed, so a phone reads in the same order as the desktop masthead —
+category, headline, standfirst, byline, then the photograph, then the prose.
+
+**Form fields are 16px on a phone** (`.field input/select/textarea`, and bare `input/select/
+textarea`, inside the 760px block). Below 16px, iOS Safari zooms the page in when a field takes
+focus and does not zoom back out. They were 15.5px, which is enough to trigger it.
+
+**The header icon buttons are 44×44** on a phone, up from 30×36 — the profile and menu buttons
+were the two smallest tap targets on the site. Desktop keeps 30×36.
+
+**A new `max-width:360px` block drops the `h1` clamp floor** from `2.3rem` to
+`clamp(1.7rem,8.6vw,2.3rem)`. The masked headline wraps one `<span class="ml">` per word and each
+is `display:inline-block`, so a long word cannot break: "conversation." on the Connect page was
+305px wide inside a 280px column at 320px, the only horizontal overflow on the site. 375px and up
+are unaffected.
+
+**Checked:** 15 routes at 320, 375, 390, 412 and 768px — `scrollWidth === clientWidth` everywhere,
+so nothing overflows sideways. 1440px re-checked to confirm the desktop composition is untouched:
+the article masthead is still two columns, the icon buttons are still 30×36, `h1` is still 48px.
+Touch behaviour exercised on a touch-emulated viewport: the menu opens and closes, a menu link
+navigates, the Explore filter chips filter (11 classes to 2 on Pilates), and the map pans and
+redraws its tiles.
+
+**Still desktop-only, deliberately.** The studio tiles stay typographic on a phone. Their
+photograph is a hover reveal and there is no hover on a touch screen, but the typographic plate is
+the design — the photograph is the bonus — so nothing was added to force it in. The cover rails
+(VITALITY RITUAL set vertically, the No. 02 seal, EST. 2026) stay hidden below 760px rather than
+reflowing.

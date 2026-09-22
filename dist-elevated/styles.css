@@ -481,7 +481,7 @@ input::placeholder,textarea::placeholder{color:#a0968a}
 
 @media (max-width:900px){
   .article-head{grid-template-columns:1fr;gap:22px}
-  .article-figure{order:-1;aspect-ratio:3/2}
+  .article-figure{aspect-ratio:3/2}
   .article-body{grid-template-columns:1fr;gap:34px}
   .article-rail{position:static;order:2;border-top:1px solid var(--line);padding-top:28px}
   .article-prose{order:1;max-width:none}
@@ -585,10 +585,18 @@ dialog p{color:var(--muted)}
   .map-list .event-card{grid-template-columns:1fr}
   .map-list .event-card img{min-height:0;aspect-ratio:3/2;height:auto}
   .form-row{grid-template-columns:1fr;gap:0}
+  /* 16px keeps iOS Safari from zooming the page when a field takes focus */
+  input,select,textarea,.field input,.field textarea,.field select{font-size:16px}
+  .icon-button{width:44px;height:44px}
   .footer-grid{grid-template-columns:1fr 1fr}
   .footer-brand{grid-column:1/-1}
   .footer-bottom{flex-direction:column;gap:10px}
   .dialog-actions{flex-wrap:wrap}
+}
+@media (max-width:360px){
+  /* the masked headline wraps per word, so a long one ("conversation.") cannot
+     break — the 2.3rem clamp floor overflows below this width */
+  h1{font-size:clamp(1.7rem,8.6vw,2.3rem)}
 }
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}

@@ -972,8 +972,10 @@ body:after{
 
 
 /* ---- article card: number over publish date ---- */
-/* was right-aligned when a category tag sat opposite it; now it stands alone */
-.tile-index{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;line-height:1.3}
+.tile-index{display:flex;flex-direction:column;align-items:flex-end;gap:3px;text-align:right;line-height:1.3}
+/* the category tag that used to sit opposite these is gone, so the row has to
+   push them right itself; studio cards keep theirs at the left */
+.tile:not(.tile-studio) .tile-meta{justify-content:flex-end}
 .tile-no{display:block}
 .tile-date{display:block;font-size:8.5px;letter-spacing:.2em;text-transform:uppercase;
   color:var(--muted);opacity:.82}

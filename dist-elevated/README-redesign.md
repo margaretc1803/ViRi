@@ -491,15 +491,25 @@ the link to `#/join`, so the letters are clickable along with the photograph aro
 after a 0.5s beat, wiping the word open left to right. No SVG stroke path was needed — a wipe
 across a joined script reads as the word being written.
 
-**The face is Sacramento, not Italianno** (`--hand`, kept separate from `--script`). Italianno has
-high stroke contrast, so a wipe passing over it popped whole thick strokes into view at once and
-read as a reveal rather than a pen. Sacramento is monoline: an even stroke uncovered gradually
-looks like a nib travelling along the line, which is the whole effect.
+**The face is Allura** (`--hand`, kept separate from `--script`). It is the closest thing on Google
+Fonts to Canva's **Aniyah**, which is what Margaret was working from: Din Studio's modern
+calligraphy, fine delicate strokes, a slight slant, an open `g` loop. Fifteen candidates were set
+in "sign up" side by side to pick it — Alex Brush was the runner-up and is slightly more
+brush-like. Two earlier attempts were rejected: Italianno's high stroke contrast made the wipe pop
+whole thick strokes into view at once, and Sacramento was monoline but too plain.
 
-**It spans the plate edge to edge.** `.auth-plate` is `container-type:inline-size` and the word is
-sized in `cqw`, so at 43cqw it fills 92% of the plate width at any screen size — measured at both
-560px and 350px plate widths. A `clamp()` in `vw` sits in front of it as the fallback for anything
-without container query support.
+**The word is small; the swashes reach the edges.** Aniyah's own lead-in and exit strokes carry
+out past the letters, which no Google script does by default, so they are drawn. The whole lockup
+is one inline SVG on a `0 0 1000 300` viewBox: a lead-in path, `<text>` at 172 units, and an exit
+path. The word occupies about 41% of the width in the middle of the photograph and the two swashes
+run out to both edges, matching the reference proportions. Keeping text and paths in one viewBox
+means they scale together exactly — verified identical at 560px and 350px plate widths — and one
+`clip-path` over the SVG draws lead-in, word and exit as a single continuous pass.
+
+**The swashes are filled wedges, not stroked lines.** Each is a closed path about 4 units thick
+where it meets the letterform and under 1 unit at the outer end, so it tapers away the way a nib
+lifts. Stroked at a uniform width they read as ruled lines, which was the first thing wrong with
+them.
 **The reduced-motion block needed an explicit `.auth-script{clip-path:none}`** — the blanket
 `*{animation:none!important}` there would otherwise freeze the word clipped shut and invisible
 rather than showing it.

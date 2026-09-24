@@ -410,3 +410,44 @@ this file. This warms and mutes the two new pictures into the palette without br
 **Checked** at 320, 390 and 1440px across fifteen routes — no horizontal overflow, no console
 errors. At 1440px the feature is 620px tall in two 720px columns; at 390px the photographs stack
 full-width at 390×260 each.
+
+**Revised the same day:** the split pair was not wanted. The section carries one photograph,
+`connect2.jpg`, at the standard `.feature-media` size, and `typing.jpg` is unreferenced again.
+`.connect-media` is down to two declarations — the crop and the grade.
+
+## Home page trim
+
+Asked for on 24 September, three separate things.
+
+**The studio carousel.** The arrows moved out of the section head and now flank the cards —
+`.studio-carousel` is a three-column grid, arrow / cards / arrow, centred on the row. It no longer
+wraps: paging runs CycleBar through to Barry's and stops on an **All studios** card, a darker
+`--taupe-deep` plate linking to `#/studios`, so the last thing you can click is a way out rather
+than a loop back to the start. Both arrows disable at their ends, and `syncStudioNav()` keeps that
+state right when the grid is re-rendered without a full route render. Studio cards lost their
+`intro` line and the `· sample` suffix; they now read just `93 members`, with the illustrative
+caveat left on the one `section-foot` note below the grid. Below 760px the carousel becomes a flex
+row so the cards keep the full content width and the two arrows sit centred underneath.
+
+**The longevity band is text only.** The `coffee-table.jpg` photograph and the *Wellness goes
+beyond the workout* eyebrow are both gone, and the block is no longer a `.feature` — it is a
+`.longevity-split` section on the `--cream-2` ground with a two-column `.longevity-grid`:
+**Connection is part of longevity** set large on the left, the 50% figure, the explanation and the
+*Find your circle* link on the right, and the citation underneath behind a hairline rule. The
+whole block used to be one enormous `<a>`; only the link is a link now. One column below 980px.
+The heading was added to `MASK_SELECTOR` so it keeps the word-rise the old `.feature-copy h2` had.
+
+**The edit lost its categories.** The filter chips are gone from the Read page, the `tag` label is
+gone from article and draft cards on both the home page and the Read index, and `readCategory`
+with its `read-filter` action are deleted. The Read page shows every story. `.edit-section`
+tightens the space above the title and between the head and the cards, so heading, *All stories*
+and all three photographs land inside one 900px screen — measured at 771px from the top of the
+section head to the bottom of the cards.
+
+**Left alone deliberately:** an article's own page still reads *Mindset · The ViRi edit* above its
+headline. That is the article masthead documented earlier in this file rather than a category
+control, so it stayed; say the word if it should go too.
+
+**Checked** at 320, 390 and 1440px across fifteen routes — no overflow, no console errors. The
+carousel was paged end to end: six steps from CycleBar to the All studios card, next disabling on
+the last step and prev on the first.

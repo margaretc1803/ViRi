@@ -3,12 +3,14 @@
 Generated 20 September 2026 from the files actually on disk, cross-referenced against the
 original `ASSET_SOURCES.json` (which only covers the first build).
 
-**38 catalogued files, of the 50 now in the folder. 27 referenced by the site, 11 retired but
-still present.** Updated 24 September 2026: `typing.jpg` and `connect2.jpg` added for the Find
-your circle section; `pin-legs.jpg`, `pin-rug.jpg` and `studio-still.jpg` freed when that section
-stopped being a three-photograph sequence; `brand-cyclebar.webp` was wrongly marked retired and is
-in fact in use. The twelve uncatalogued files were already on disk before this inventory was first
-generated and still have no row.
+**38 catalogued files, of the 50 now in the folder. 25 referenced by the site, 13 retired but
+still present.** Updated 24 September 2026: `connect2.jpg` is the single Find your circle
+photograph; `typing.jpg` came in for that section and went out again when it dropped to one
+picture; `pin-legs.jpg`, `pin-rug.jpg` and `studio-still.jpg` were freed when the section stopped
+being a three-photograph sequence; `coffee-table.jpg` was freed when the longevity band lost its
+photograph; `brand-cyclebar.webp` was wrongly marked retired and is in fact in use. The twelve
+uncatalogued files were already on disk before this inventory was first generated and still have
+no row.
 
 `ASSET_SOURCES.json` carries full URLs and dimensions for the 12 files it knows about. Everything
 else came in later — mostly from Margaret's Pinterest board — and has no provenance record at all.
@@ -28,7 +30,7 @@ else came in later — mostly from Margaret's Pinterest board — and has no pro
 | `brand-soulcycle.jpg` | yes | https://www.soul-cycle.com/soulconnected/instruct… | Copyright retained by source/photographer; no explicit reuse license verified. |
 | `caveat-OFL.txt` | — | not recorded | Not recorded. Supplied by Margaret or added during the redesign; treat as third-party and unl… |
 | `caveat.woff` | — | https://github.com/google/fonts/tree/main/ofl/caveat | SIL Open Font License 1.1; included as caveat-OFL.txt |
-| `coffee-table.jpg` | yes | not recorded | Not recorded. Supplied by Margaret or added during the redesign; treat as third-party and unl… |
+| `coffee-table.jpg` | — | not recorded | Not recorded. Supplied by Margaret or added during the redesign; treat as third-party and unl… |
 | `connect-reformers.jpg` | yes | not recorded | Not recorded. Supplied by Margaret or added during the redesign; treat as third-party and unl… |
 | `connect2.jpg` | yes | supplied by Margaret 23 Sep 2026 (`project/Photos/Connect2.jpeg`) | Not recorded. Supplied by Margaret; treat as third-party and unl… |
 | `detail-weights.jpg` | yes | not recorded | Not recorded. Supplied by Margaret or added during the redesign; treat as third-party and unl… |
@@ -52,7 +54,7 @@ else came in later — mostly from Margaret's Pinterest board — and has no pro
 | `studio-sculpt.jpg` | yes | not recorded | Not recorded. Supplied by Margaret or added during the redesign; treat as third-party and unl… |
 | `studio-shelf.jpg` | yes | not recorded | Not recorded. Supplied by Margaret or added during the redesign; treat as third-party and unl… |
 | `studio-still.jpg` | — | not recorded | Not recorded. Supplied by Margaret or added during the redesign; treat as third-party and unl… |
-| `typing.jpg` | yes | supplied by Margaret 23 Sep 2026 (`project/Photos/Typing.jpeg`) | Not recorded. Supplied by Margaret; treat as third-party and unl… |
+| `typing.jpg` | — | supplied by Margaret 23 Sep 2026 (`project/Photos/Typing.jpeg`) | Not recorded. Supplied by Margaret; treat as third-party and unl… |
 
 ## What this means
 
@@ -68,10 +70,14 @@ These are unreferenced. They are kept because they may be wanted again; delete t
 
 - `brand-clubpilates.webp`
 - `brand-corepower.webp`
-- `brand-cyclebar.webp`
 - `brand-purebarre-barre.jpg`
 - `brand-purebarre.jpg`
 - `brand-solidcore-blue.jpg`
 - `caveat-OFL.txt`
 - `caveat.woff`
+- `coffee-table.jpg`
 - `pin-balls.jpg`
+- `pin-legs.jpg`
+- `pin-rug.jpg`
+- `studio-still.jpg`
+- `typing.jpg`

@@ -409,32 +409,40 @@ input::placeholder,textarea::placeholder{color:#a0968a}
 .founder-monogram{width:74px;height:74px;display:grid;place-items:center;border:1px solid var(--line-2);border-radius:50%;font-family:var(--display);font-size:20px;letter-spacing:.06em;margin-bottom:22px;background:var(--cream-2)}
 
 /* ---------------------------------------------------------- auth */
-/* ---- sign up: one photograph, the script letters are the link ---------- */
-.auth-hero{padding:clamp(26px,3.4vw,50px) 0 clamp(44px,5.4vw,84px);text-align:center}
-.auth-plate{position:relative;display:block;overflow:hidden;background:var(--taupe-light);
-  margin:0 auto;width:min(560px,calc(100% - var(--gutter) * 2));aspect-ratio:736/920}
-.auth-plate img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-  transition:transform 2.4s ease}
-.auth-plate:hover img,.auth-plate:focus-visible img{transform:scale(1.03)}
-.auth-plate:after{content:'';position:absolute;inset:0;z-index:1;
-  background:linear-gradient(180deg,rgba(59,50,42,.06),rgba(59,50,42,.30))}
-/* the wipe runs left to right over the whole SVG, so the lead-in swash,
-   the word and the exit swash draw as one continuous pen pass */
-/* the word sits small in the middle; the two swashes carry the line out to
-   both edges, and one clip over the whole SVG draws them as a single pass */
-/* the letters are real Allura; a thick stroke travelling the pen's route masks
-   them in, so they arrive in writing order instead of behind a straight wipe.
-   pathLength normalises the dash maths to 1000 whatever the real arc length is */
-.auth-script{position:absolute;inset:0;z-index:2;margin:0;display:grid;place-items:center}
-.auth-script svg{width:100%;height:auto;display:block;overflow:visible}
-.auth-pen{fill:none;stroke:#fff;stroke-width:118;stroke-linecap:round;stroke-linejoin:round;
-  stroke-dasharray:1000;stroke-dashoffset:1000;
-  animation:handwrite 5s cubic-bezier(.36,.02,.38,1) .4s forwards}
-@keyframes handwrite{to{stroke-dashoffset:0}}
-.auth-word{font-family:var(--hand);font-weight:400;font-size:172px;fill:#fff}
-.auth-swash{fill:#fff;stroke:none}
-.auth-hero-foot{margin-top:clamp(20px,2.4vw,30px);font-size:13.5px;color:var(--muted)}
-.auth-hero-foot a{border-bottom:1px solid var(--line-2);color:var(--ink)}
+/* ---- sign up: photograph, panel, statement ----------------------------- */
+.signup-hero{position:relative;overflow:hidden;background:var(--taupe-light);
+  height:clamp(580px,82vh,880px);display:grid;place-items:center}
+/* the source is 1200x1800 and the band is far wider than it is tall, so the
+   crop has to be pulled down the frame to hold the figures and the court */
+.signup-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  object-position:center 70%}
+/* the panel and the statement both carry light type, so the photograph needs
+   grounding at the foot as well as an overall settle */
+.signup-hero:after{content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(59,50,42,.10) 0%,rgba(59,50,42,.06) 45%,rgba(59,50,42,.52) 100%)}
+.signup-panel{position:relative;z-index:2;background:var(--cocoa);color:var(--on-dark);
+  width:min(400px,calc(100% - var(--gutter) * 2));
+  padding:clamp(26px,3vw,40px) clamp(24px,2.8vw,36px);
+  margin-bottom:clamp(60px,10vw,140px)}
+.signup-panel h1{font-family:var(--display);font-style:italic;font-weight:400;
+  font-size:clamp(1.6rem,2.5vw,2.1rem);line-height:1.1;color:var(--paper);
+  text-transform:none;letter-spacing:.01em;text-align:center;
+  margin:0 0 clamp(18px,2vw,26px)}
+.signup-panel input{width:100%;font-size:16px;margin-bottom:12px;
+  background:transparent;border:1px solid rgba(244,239,232,.46);color:var(--paper)}
+.signup-panel input::placeholder{color:rgba(244,239,232,.6)}
+.signup-panel input:focus-visible{outline:2px solid var(--paper);outline-offset:2px}
+.signup-panel .button{width:100%;margin-top:6px}
+.signup-panel .field-error:empty{display:none}
+.signup-panel .field-error{color:#f0c7bd;margin:2px 0 10px}
+.signup-foot{margin:clamp(16px,1.8vw,22px) 0 0;text-align:center;font-size:12.5px;
+  color:rgba(244,239,232,.74)}
+.signup-foot a{color:var(--paper);border-bottom:1px solid rgba(244,239,232,.46)}
+.signup-statement{position:absolute;z-index:2;margin:0;
+  left:var(--gutter);right:var(--gutter);bottom:clamp(26px,3.6vw,52px);
+  font-family:var(--display);font-weight:400;color:#fff;
+  font-size:clamp(1.9rem,4.4vw,3.7rem);line-height:1.08;letter-spacing:.005em;
+  text-shadow:0 2px 24px rgba(48,38,29,.38)}
 
 /* ---- one question at a time -------------------------------------------- */
 .join-flow{display:grid;place-items:center;padding:clamp(44px,6vw,96px) 0}
@@ -684,8 +692,6 @@ dialog p{color:var(--muted)}
   .will-reveal,.will-reveal .reveal-word{opacity:1;transform:none}
   .cover-title .cw{opacity:1;transform:none}
   .feature.will-reveal .feature-media img{transform:none}
-  /* the blanket animation:none above would otherwise freeze the mask closed */
-  .auth-pen{stroke-dashoffset:0}
 }
 @media print{
   .site-header{display:none}

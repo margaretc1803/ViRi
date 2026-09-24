@@ -427,7 +427,7 @@ input::placeholder,textarea::placeholder{color:#a0968a}
    pathLength normalises the dash maths to 1000 whatever the real arc length is */
 .auth-script{position:absolute;inset:0;z-index:2;margin:0;display:grid;place-items:center}
 .auth-script svg{width:100%;height:auto;display:block;overflow:visible}
-.auth-pen{fill:none;stroke:#fff;stroke-width:210;stroke-linecap:round;stroke-linejoin:round;
+.auth-pen{fill:none;stroke:#fff;stroke-width:118;stroke-linecap:round;stroke-linejoin:round;
   stroke-dasharray:1000;stroke-dashoffset:1000;
   animation:handwrite 5s cubic-bezier(.36,.02,.38,1) .4s forwards}
 @keyframes handwrite{to{stroke-dashoffset:0}}

@@ -602,7 +602,7 @@ function contactPage(){return `<section class="page-head"><div class="wrap"><p c
 function signupPage(){joinStep=0;return `<section class="auth-hero">
   <a class="auth-plate" href="#/join">
     <img src="${A}studio-entry.jpg" alt="Two women arriving at the studio together">
-    <h1 class="auth-script">sign up</h1>
+    <h1 class="auth-script"><svg viewBox="0 0 1000 300" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Sign up"><path class="auth-swash" d="M6 231.8 C 118 228 228 212 300 188 L300 193 C 228 217 118 232.6 6 232.9 Z"/><text class="auth-word" x="500" y="196" text-anchor="middle">sign up</text><path class="auth-swash" d="M700 187 C 794 177 892 160 994 127.6 L994 128.4 C 892 165 794 185 700 192 Z"/></svg></h1>
   </a>
   <p class="auth-hero-foot">Already have a profile? <a href="#/login">Log in</a></p>
 </section>`;}

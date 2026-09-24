@@ -451,3 +451,28 @@ control, so it stayed; say the word if it should go too.
 **Checked** at 320, 390 and 1440px across fifteen routes — no overflow, no console errors. The
 carousel was paged end to end: six steps from CycleBar to the All studios card, next disabling on
 the last step and prev on the first.
+
+### Corrections to the above
+
+**`.section + .section{padding-top:0}` was eating both new sections.** Making the longevity band a
+`.section` put it next to the studio section and put the edit next to *it*, so the rule at line 105
+collapsed the top padding on both — the 50% figure sat on the edge of its column and the hairline
+over **The ViRi edit** landed on the band boundary. That selector is two classes; a bare
+`.edit-section` is one, so it never stood a chance. Both are now `.section.edit-section` and
+`.section.longevity-split`, which tie on specificity and win on order. Worth remembering before
+adding another `.section` to the home page.
+
+**The longevity band is centred and bigger.** `.longevity-grid` is `align-items:center` rather
+than `start`, so the heading and the figure block balance against each other instead of both
+hanging from the top, and the section carries `clamp(72px,8.4vw,126px)` of its own vertical
+padding. The figure also takes `padding-top:.12em` — the numeral is set on a `.9` line-height, so
+its ascender crowds the edge without it.
+
+**No. and date are left-aligned again.** `.tile-index` was `align-items:flex-end;text-align:right`
+because a category tag used to sit opposite it in the `.tile-meta` row. With the tag gone it was
+the only child and its contents still hugged right, which read as a stray indent. Now
+`flex-start` / `left`, flush with the headline beneath it.
+
+**A separator before the review.** `.testimonial:before` draws a hairline across the content width
+— `min(1320px, 100% - 2 × gutter)`, matching `.wrap` — so the member quote reads as its own
+section rather than running on from the edit grid.

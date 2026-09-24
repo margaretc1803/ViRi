@@ -377,3 +377,36 @@ photograph is a hover reveal and there is no hover on a touch screen, but the ty
 the design — the photograph is the bonus — so nothing was added to force it in. The cover rails
 (VITALITY RITUAL set vertically, the No. 02 seal, EST. 2026) stay hidden below 760px rather than
 reflowing.
+
+## Connect becomes Find your circle
+
+Asked for on 23 September. The scroll-driven sequence was not working, so it is gone.
+
+**The section no longer pins.** `initConnect()` — the sticky wrapper, the scroll handler, the
+travel measurement, the hysteresis and the per-step `is-on` toggling — is deleted, along with
+`.connect-wrap`, `.connect-shot` and the media-query overrides that existed only to unpin it. The
+section is now an ordinary `.feature` carrying `data-reveal`, which is the same fade-up the
+testimonial quote uses; its heading is already in `MASK_SELECTOR`, so the words rise on reveal
+exactly as the quote's do. All three steps and their descriptions are visible at once, so the
+`panel-d` grid-row collapse and the `.42` dimming both came out.
+
+**New copy.** The heading is **Find your circle**. The steps read: *Build your profile* — what
+moves you, where you go, and when; *Explore what's nearby* — add your classes; *Find your people*
+— see who's booked the same classes as you, connect, and go together.
+
+**Two photographs, stacked.** The three-photograph sequence had nothing left to sequence, so the
+media column is now a two-row grid: `typing.jpg` above, `connect2.jpg` below, both supplied by
+Margaret. The rows are `minmax(0,1fr)` rather than `1fr` — at `1fr` the row floor is the image's
+intrinsic height, which drove the column to about 1080px per photograph and stretched the whole
+feature to 2171px. Below 900px the rows go `auto` and each photograph takes a 3:2 crop at full
+width. `pin-legs.jpg`, `studio-still.jpg` and `pin-rug.jpg` are no longer referenced; they stay on
+disk and are now free for a story to use, and the composer's `taken` list was updated to match.
+
+**The grade.** Both photographs carry `saturate(.62) sepia(.14) brightness(1.03) contrast(.96)` —
+the same grade the Explore map tiles use. There is no site-wide lifestyle-photo filter to copy:
+editorial photographs here are deliberately ungraded, and greyscaling them is ruled out earlier in
+this file. This warms and mutes the two new pictures into the palette without breaking that rule.
+
+**Checked** at 320, 390 and 1440px across fifteen routes — no horizontal overflow, no console
+errors. At 1440px the feature is 620px tall in two 720px columns; at 390px the photographs stack
+full-width at 390×260 each.

@@ -639,31 +639,25 @@ dialog p{color:var(--muted)}
 }
 .tile:hover .tile-media img{transform:scale(1.05)}
 
-/* ---- 3. the pinned Connect sequence ------------------------ */
-.connect-wrap{position:relative;margin-top:clamp(50px,6vw,92px);
-  height:calc(min(100svh - var(--header),640px) + 700px)}
-.feature-connect{position:sticky;top:var(--header);margin-top:0;height:calc(100svh - var(--header));
-  max-height:640px;align-items:stretch}
-.connect-media{position:relative;height:auto}
-.connect-shot{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-  opacity:0;will-change:opacity;backface-visibility:hidden;
-  transition:opacity .85s cubic-bezier(.33,0,.2,1)}
-.connect-shot:nth-of-type(1){z-index:1}
-.connect-shot:nth-of-type(2){z-index:2}
-.connect-shot:nth-of-type(3){z-index:3}
-.connect-shot.is-on{opacity:1}
+/* ---- 3. the Connect pair ----------------------------------- */
+/* minmax(0,…) so the rows can shrink under the photographs' intrinsic height,
+   which would otherwise drive the row to ~1080px and stretch the whole feature */
+.connect-media{display:grid;grid-template-rows:minmax(0,1fr) minmax(0,1fr);
+  gap:clamp(8px,.9vw,14px);background:transparent;
+  height:clamp(400px,48vw,620px)}
+/* the two photographs are ungraded originals; this warms and mutes them into
+   the palette without greyscaling, which editorial photographs never get */
+.connect-media img{position:relative;inset:auto;width:100%;height:100%;
+  object-fit:cover;background:var(--taupe-light);
+  filter:saturate(.62) sepia(.14) brightness(1.03) contrast(.96)}
+.connect-media img:nth-of-type(1){object-position:center 42%}
+.connect-media img:nth-of-type(2){object-position:center 38%}
 .feature-connect .feature-panel{justify-content:center}
-.panel-list li{align-items:flex-start;gap:16px;opacity:.42;transition:opacity .6s ease}
-.panel-list li.is-on{opacity:1}
+.panel-list li{align-items:flex-start;gap:16px}
 .panel-body{display:block}
 .panel-t{display:block}
-.panel-d{display:grid;grid-template-rows:0fr;margin-top:0;opacity:0;
-  font-size:13px;line-height:1.6;letter-spacing:.01em;color:rgba(255,255,255,.78);
-  transition:grid-template-rows .6s cubic-bezier(.33,0,.2,1),opacity .45s ease,margin-top .6s ease}
-.panel-d>span{overflow:hidden;min-height:0}
-.panel-list li.is-on .panel-d{grid-template-rows:1fr;opacity:1;margin-top:6px}
-.panel-n{opacity:.7}
-.panel-list li.is-on .panel-n{opacity:1}
+.panel-d{display:block;margin-top:6px;
+  font-size:13px;line-height:1.6;letter-spacing:.01em;color:rgba(255,255,255,.78)}
 
 /* ---- 4. film grain ----------------------------------------- */
 body:after{
@@ -691,25 +685,17 @@ body:after{
 
 /* ---- responsive + reduced motion --------------------------- */
 @media (max-width:900px){
-  .connect-wrap{height:auto;margin-top:clamp(50px,6vw,92px)}
-  .feature-connect{position:static;height:auto;max-height:none}
-  .connect-media{height:clamp(240px,52vw,360px)}
-  .connect-shot{position:absolute;opacity:0}
-  .connect-shot.is-on{opacity:1}
-  .panel-list li{opacity:1}
-  .panel-list li .panel-d{max-height:60px;opacity:1;margin-top:6px}
+  /* stacked full-width, each photograph gets its own landscape crop */
+  .connect-media{grid-template-rows:auto auto;min-height:0}
+  .connect-media img{height:auto;aspect-ratio:3/2}
 }
 @media (prefers-reduced-motion:reduce){
   .is-masked .mi{transform:none;opacity:1;animation:none}
   .will-reveal .tile-media img,.will-reveal .feature-media img,
   .will-reveal .about-hero-image{clip-path:none;transform:none}
-  .connect-wrap{height:auto}
-  .feature-connect{position:static;height:auto;max-height:none}
-  .panel-list li{opacity:1}
-  .panel-list li .panel-d{max-height:60px;opacity:1;margin-top:6px}
   body:after{display:none}
 }
-@media print{body:after{display:none}.connect-wrap{height:auto}.feature-connect{position:static;height:auto}}
+@media print{body:after{display:none}}
 
 /* ============================================================
    Explore — map, class browser, rosters

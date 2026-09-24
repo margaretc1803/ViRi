@@ -476,3 +476,37 @@ the only child and its contents still hugged right, which read as a stray indent
 **A separator before the review.** `.testimonial:before` draws a hairline across the content width
 — `min(1320px, 100% - 2 × gutter)`, matching `.wrap` — so the member quote reads as its own
 section rather than running on from the edit grid.
+
+## Sign up is a photograph, and the questions moved to their own screen
+
+Asked for on 24 September. `#/signup` was a two-column split — photograph left, a full form right.
+It is now one centred photograph and nothing else.
+
+**The screen.** `.auth-plate` is `studio-entry.jpg` at its own 736:920 proportions, capped at
+560px and centred on the cream ground, exactly as the home cover sits as a plate on a field. Over
+it, **sign up** in Italianno — the site's `--script` face — as the page's `h1`. The whole plate is
+the link to `#/join`, so the letters are clickable along with the photograph around them.
+
+**How the letters draw.** `clip-path:inset(0 100% 0 0)` animating to `inset(0 0 0 0)` over 2.6s
+on an eased curve after a 0.35s beat, which wipes the word open left to right. Because the script
+face joins its letters, a wipe reads as the word being written; no SVG stroke path was needed.
+**The reduced-motion block needed an explicit `.auth-script{clip-path:none}`** — the blanket
+`*{animation:none!important}` there would otherwise freeze the word clipped shut and invisible
+rather than showing it.
+
+**`#/join` asks one question at a time.** Four steps — name, email, neighborhood, what moves you —
+each its own screen with a `01 / 04` counter, Back and Continue, and a four-segment progress rule.
+`joinStep` and `joinData` hold the answers between steps; `joinStep` resets whenever `#/signup`
+renders. The last step writes the same `state.profile` shape the old single form wrote and hands
+off to `#/setup`, so everything downstream is unchanged. Empty name and empty email are caught in
+`bindJoin`; a malformed email is caught by the native `type="email"` constraint before the handler
+runs, so that case shows the browser's own message rather than the inline one.
+
+**Login keeps its form** and `authPage()` is now login-only — the signup branches inside it, and
+the `login` parameter, are gone rather than left dead. It asks for the email alone, as before.
+
+**Checked** at 390 and 1440px across fifteen routes including `#/join` — no overflow, no console
+errors. The flow was walked end to end: the plate link opens step 01, an empty name is refused,
+all four answers are captured, and the profile written to `localStorage` came back as
+`{name, email, area, interests}` before landing on `#/setup`. Login was re-tested both ways: an
+unknown email is refused, a known one opens the profile.

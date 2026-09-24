@@ -32,7 +32,7 @@ try {state={...defaultState,...JSON.parse(localStorage.getItem('viri-preview')||
 function save(){try{localStorage.setItem('viri-preview',JSON.stringify(state));}catch{toast('This browser cannot save changes. Your preview still works for this visit.');}}
 let studioIndex=0, revealObserver;
 let explore={category:'All',area:'All neighborhoods',query:'',view:'map',kind:'classes',selected:null};
-let readCategory='All',toastTimer;
+let toastTimer;
 const allEvents=()=>[...seedEvents,...seedClubs,...state.created];
 function prettyDate(date){return new Date(date).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});}
 function prettyTime(date){return new Date(date).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});}
@@ -60,7 +60,6 @@ function home(){return `<div class="home-page">
 </section>
 <section class="feature feature-connect" data-reveal>
   <figure class="feature-media connect-media">
-    <img src="${A}typing.jpg" alt="A woman on a couch filling in her profile on a laptop" loading="lazy">
     <img src="${A}connect2.jpg" alt="A woman stretching on a reformer in a lit studio" loading="lazy">
   </figure>
   <div class="feature-panel">
@@ -73,32 +72,42 @@ function home(){return `<div class="home-page">
     <a class="panel-link" href="#/signup">Start your profile ${arrow}</a>
   </div>
 </section>
-<section class="section studio-section"><div class="wrap"><div class="section-head" data-reveal><h2 class="section-title">Find your next favorite</h2><div class="head-controls"><button class="circle-button" data-action="studio-prev" aria-label="Previous studios">‹</button><button class="circle-button" data-action="studio-next" aria-label="Next studios">›</button><a class="text-link" href="#/studios">All studios ${arrow}</a></div></div><div class="cards-three" id="studio-grid" aria-live="polite" aria-label="Featured studios">${studioCards()}</div><p class="section-foot">Member attendance counts are illustrative for this preview.</p></div></section>
-<section class="feature feature-reverse" data-reveal>
-  <figure class="feature-media"><img src="${A}coffee-table.jpg" alt="Two women talking over coffee at a table after class" loading="lazy"></figure>
-  <a class="feature-copy" href="#/signup">
-    <p class="eyebrow">Wellness goes beyond the workout</p>
-    <h2>Connection is part of longevity</h2>
-    <p class="longevity-figure"><strong>50%</strong> higher odds of survival</p>
-    <p class="longevity-lede">People with strong social ties outlived those without them across 148 studies and 308,849 people—an effect researchers put on par with quitting smoking. A standing class with the same faces every week is one of the easiest ways to build ties like that.</p>
-    <span class="longevity-cta">Find your circle ${arrow}</span>
-  </a>
-</section>
-<p class="longevity-source">Holt-Lunstad et al., <a href="${studyURL}" target="_blank" rel="noopener">PLOS Medicine</a>, 2010. Odds of survival over an average 7.5 years of follow-up—not a 50% longer life.</p>
-<section class="section"><div class="wrap"><div class="section-head" data-reveal><h2 class="section-title">The ViRi edit</h2><a class="text-link" href="#/read">All stories ${arrow}</a></div><div class="cards-three">${allArticles().slice(0,3).map((a,i)=>a.draft?draftCard(a,i):articleCard(a,i)).join('')}</div></div></section>
+<section class="section studio-section"><div class="wrap"><div class="section-head" data-reveal><h2 class="section-title">Find your next favorite</h2><div class="head-controls"><a class="text-link" href="#/studios">All studios ${arrow}</a></div></div><div class="studio-carousel"><button class="circle-button carousel-arrow" data-action="studio-prev" aria-label="Previous studios" disabled>‹</button><div class="cards-three" id="studio-grid" aria-live="polite" aria-label="Featured studios">${studioCards()}</div><button class="circle-button carousel-arrow" data-action="studio-next" aria-label="Next studios">›</button></div><p class="section-foot">Member counts are illustrative for this preview.</p></div></section>
+<section class="section longevity-split" data-reveal><div class="wrap">
+  <div class="longevity-grid">
+    <h2 class="longevity-title">Connection is part of longevity</h2>
+    <div class="longevity-body">
+      <p class="longevity-figure"><strong>50%</strong> higher odds of survival</p>
+      <p class="longevity-lede">People with strong social ties outlived those without them across 148 studies and 308,849 people—an effect researchers put on par with quitting smoking. A standing class with the same faces every week is one of the easiest ways to build ties like that.</p>
+      <a class="longevity-cta" href="#/signup">Find your circle ${arrow}</a>
+    </div>
+  </div>
+  <p class="longevity-source">Holt-Lunstad et al., <a href="${studyURL}" target="_blank" rel="noopener">PLOS Medicine</a>, 2010. Odds of survival over an average 7.5 years of follow-up—not a 50% longer life.</p>
+</div></section>
+<section class="section edit-section"><div class="wrap"><div class="section-head" data-reveal><h2 class="section-title">The ViRi edit</h2><a class="text-link" href="#/read">All stories ${arrow}</a></div><div class="cards-three">${allArticles().slice(0,3).map((a,i)=>a.draft?draftCard(a,i):articleCard(a,i)).join('')}</div></div></section>
 <section class="testimonial" data-reveal><div class="wrap">
   <p class="stars" aria-label="Five stars">★★★★★</p>
   <blockquote>${reviews[0].text}</blockquote>
   <p class="testimonial-by">${reviews[0].name} · Illustrative member story</p>
 </div></section>
 ${joinFinale()}</div>`;}
-function studioCards(){return [0,1,2].map(i=>studioCard(studios[(studioIndex+i)%studios.length])).join('');}
+/* the carousel runs to the end and stops on an All studios card rather than
+   wrapping back round to the first studio */
+const STUDIO_LAST=()=>studios.length+1-3;
+function studioCards(){return [0,1,2].map(i=>studioIndex+i).filter(i=>i<=studios.length)
+  .map(i=>i<studios.length?studioCard(studios[i]):allStudiosCard()).join('');}
+function syncStudioNav(){
+  const p=$('[data-action="studio-prev"]'), n=$('[data-action="studio-next"]');
+  if(p)p.disabled=studioIndex<=0;
+  if(n)n.disabled=studioIndex>=STUDIO_LAST();
+}
 /* the photograph has to show the thing the studio actually does */
 const STUDIO_PHOTO={cyclebar:'hero-cycling-studio.webp',solidcore:'hero-pilates.jpg',purebarre:'studio-arches.jpg',
   corepower:'hero-mats.jpg',soulcycle:'brand-soulcycle.jpg',orangetheory:'brand-orangetheory.webp',
   clubpilates:'pin-matclass.jpg',barrys:'brand-barrys.jpg'};
 const studioPhoto=s=>STUDIO_PHOTO[s.id]||null;
-function studioCard(s){const count=[128,96,84,112,105,76,93,68][studios.indexOf(s)];return `<article class="tile tile-studio" data-reveal><a href="#/studios/${s.id}"><div class="tile-plate"><img class="plate-photo" src="${A+studioPhoto(s)}" alt="" aria-hidden="true" loading="lazy"><h3 class="plate-name">${s.name}</h3><span class="plate-cat">${s.category}</span></div><p class="tile-meta"><span class="tile-index">${count} members \u00b7 sample</span></p><p>${s.intro}</p></a></article>`;}
+function studioCard(s){const count=[128,96,84,112,105,76,93,68][studios.indexOf(s)];return `<article class="tile tile-studio" data-reveal><a href="#/studios/${s.id}"><div class="tile-plate"><img class="plate-photo" src="${A+studioPhoto(s)}" alt="" aria-hidden="true" loading="lazy"><h3 class="plate-name">${s.name}</h3><span class="plate-cat">${s.category}</span></div><p class="tile-meta"><span class="tile-index">${count} members</span></p></a></article>`;}
+function allStudiosCard(){return `<article class="tile tile-studio tile-all" data-reveal><a href="#/studios"><div class="tile-plate tile-plate-all"><h3 class="plate-name">All studios</h3><span class="plate-cat">See every one ${arrow}</span></div><p class="tile-meta"><span class="tile-index">${studios.length} in Washington, DC</span></p></a></article>`;}
 function statistics(){return `<section class="longevity-section"><a class="longevity-inner" href="#/signup" data-reveal><p class="eyebrow">Wellness goes beyond the workout</p><h2>Connection is part of longevity</h2><p class="longevity-figure"><strong>50%</strong> higher odds of survival</p><p class="longevity-lede">People with strong social ties outlived those without them across 148 studies and 308,849 people—an effect researchers put on par with quitting smoking. A standing class with the same faces every week is one of the easiest ways to build ties like that.</p><span class="longevity-cta">Find your circle ${arrow}</span></a><p class="longevity-source">Holt-Lunstad et al., <a href="${studyURL}" target="_blank" rel="noopener">PLOS Medicine</a>, 2010. Odds of survival over an average 7.5 years of follow-up—not a 50% longer life.</p></section>`;}
 function joinFinale(){return `<section class="join-finale" aria-label="Join ViRi" data-reveal><div class="join-inner"><p class="eyebrow">Your people. Your pace. Your ritual.</p><h2>Find your circle</h2>${button('Join now','#/signup','light')}</div></section>`;}
 function joinSection(){return joinFinale();}
@@ -115,14 +124,14 @@ const articles=[
 ];
 const allArticles=()=>[...(state.drafts||[]),...articles]
   .sort((x,y)=>(artDate(y.date)?.getTime()||0)-(artDate(x.date)?.getTime()||0));
-function draftCard(d,i){return `<article class="tile" data-reveal><a href="#/read/${d.id}"><div class="tile-media"><img src="${A+d.img}" alt="${escapeHTML(d.desc)}" loading="lazy"></div><p class="tile-meta"><span class="tag">${escapeHTML(d.category)}</span><span class="tile-index"><span class="tile-no">No. ${String((i??0)+1).padStart(2,'0')}</span>${d.date?`<time class="tile-date" datetime="${d.date}">${fmtShort(d.date)}</time>`:'<span class="tile-date">Your draft</span>'}</span></p><h3>${escapeHTML(d.title)}</h3><p>${escapeHTML(d.desc)}</p></a></article>`;}
+function draftCard(d,i){return `<article class="tile" data-reveal><a href="#/read/${d.id}"><div class="tile-media"><img src="${A+d.img}" alt="${escapeHTML(d.desc)}" loading="lazy"></div><p class="tile-meta"><span class="tile-index"><span class="tile-no">No. ${String((i??0)+1).padStart(2,'0')}</span>${d.date?`<time class="tile-date" datetime="${d.date}">${fmtShort(d.date)}</time>`:'<span class="tile-date">Your draft</span>'}</span></p><h3>${escapeHTML(d.title)}</h3><p>${escapeHTML(d.desc)}</p></a></article>`;}
 function writeStory(id){
   const d=(state.drafts||[]).find(x=>x.id===id);
   /* only offer photographs nothing else on the site is using, so a new story
      cannot duplicate a picture that is already somewhere */
   const taken=new Set([...articles,...(state.drafts||[])].filter(x=>!d||x.id!==d.id).map(x=>x.img)
     .concat(Object.values(STUDIO_PHOTO),
-      ['pin-trail.jpg','typing.jpg','connect2.jpg','coffee-table.jpg',
+      ['pin-trail.jpg','connect2.jpg',
        'studio-sculpt.jpg','studio-entry.jpg','pin-stretch.jpg','mat-class.jpg']));
   const imgs=['pin-cafe.jpg','connect-reformers.jpg','hero-tree-pose.jpg','barre-white.jpg',
     'studio-arches.jpg','barre-balls.jpg','lockers.jpg','studio-shelf.jpg','detail-weights.jpg']
@@ -159,7 +168,7 @@ function writeStory(id){
     const entry={id:d?d.id:'draft-'+crypto.randomUUID().slice(0,8),draft:true,date:d?d.date:iso,
       title:String(f.title).trim(),category:f.category,img:f.img,desc:String(f.desc).trim(),raw,body:html};
     state.drafts=d?(state.drafts||[]).map(x=>x.id===entry.id?entry:x):[entry,...(state.drafts||[])];
-    save();closeModal();readCategory='All';location.hash='#/read';render(false);
+    save();closeModal();location.hash='#/read';render(false);
     toast(d?'Story updated on this device.':'Story added. It lives in this browser only.');
   });});
 }
@@ -170,7 +179,7 @@ function copyStory(id){
     ()=>toast('Copied. Send me that text and I will publish it into the site properly.'),
     ()=>toast('Could not reach the clipboard — select the text in the story and copy it by hand.'));
 }
-function articleCard(a,i){return `<article class="tile" data-reveal><a href="#/read/${a.id}"><div class="tile-media"><img src="${A+a.img}" alt="${escapeHTML(a.desc)}" loading="lazy"></div><p class="tile-meta"><span class="tag">${escapeHTML(a.category)}</span><span class="tile-index"><span class="tile-no">No. ${String((i??allArticles().indexOf(a))+1).padStart(2,'0')}</span>${a.date?`<time class="tile-date" datetime="${a.date}">${fmtShort(a.date)}</time>`:''}</span></p><h3>${escapeHTML(a.title)}</h3><p>${escapeHTML(a.desc)}</p></a></article>`;}
+function articleCard(a,i){return `<article class="tile" data-reveal><a href="#/read/${a.id}"><div class="tile-media"><img src="${A+a.img}" alt="${escapeHTML(a.desc)}" loading="lazy"></div><p class="tile-meta"><span class="tile-index"><span class="tile-no">No. ${String((i??allArticles().indexOf(a))+1).padStart(2,'0')}</span>${a.date?`<time class="tile-date" datetime="${a.date}">${fmtShort(a.date)}</time>`:''}</span></p><h3>${escapeHTML(a.title)}</h3><p>${escapeHTML(a.desc)}</p></a></article>`;}
 function readNext(current){
   const others=allArticles().filter(x=>x.id!==current).slice(0,3);
   if(!others.length)return '';
@@ -214,7 +223,7 @@ function readPage(id){if(id){const a=allArticles().find(x=>x.id===id);if(!a)retu
       </div>
     </div>
   </article>`;}
-  return `<section class="page-head"><div class="wrap"><p class="eyebrow">The ViRi edit</p><h1>A little inspiration<br>for your everyday.</h1><p>Movement, community, and the rituals that bring us together.</p></div></section><section class="wrap" style="padding-bottom:80px"><div class="toolbar" style="justify-content:space-between"><div class="chips" aria-label="Filter stories" style="margin:0">${['All','Mindset','Movement','Community','Style'].map(c=>`<button class="chip ${readCategory===c?'active':''}" data-action="read-filter" data-category="${c}" aria-pressed="${readCategory===c}">${c}</button>`).join('')}</div><button class="button small outline" data-action="write-story">Write a story ${arrow}</button></div><div class="cards-three">${allArticles().filter(a=>readCategory==='All'||readCategory===a.category).map((a,i)=>a.draft?draftCard(a,i):articleCard(a,i)).join('')}</div></section>`;}
+  return `<section class="page-head"><div class="wrap"><p class="eyebrow">The ViRi edit</p><h1>A little inspiration<br>for your everyday.</h1><p>Movement, community, and the rituals that bring us together.</p></div></section><section class="wrap" style="padding-bottom:80px"><div class="toolbar" style="justify-content:flex-end"><button class="button small outline" data-action="write-story">Write a story ${arrow}</button></div><div class="cards-three">${allArticles().map((a,i)=>a.draft?draftCard(a,i):articleCard(a,i)).join('')}</div></section>`;}
 function filteredEvents(){return allEvents().filter(e=>(explore.kind==='clubs'?e.type==='club':e.type!=='club')&&(explore.category==='All'||e.category===explore.category)&&(explore.area==='All neighborhoods'||e.area===explore.area)&&(`${e.title} ${e.category} ${e.place} ${e.host} ${studios.find(s=>s.id===e.studio)?.name||""}`.toLowerCase().includes(explore.query.toLowerCase())));}
 function eventCard(e){const joined=state.joined.includes(e.id);return `<article class="event-card">${e.img
   ?`<img src="${A+e.img}" alt="${escapeHTML(e.category)} community activity" loading="lazy">`
@@ -751,7 +760,7 @@ function maskText(el){
   /* headings that sit outside a scroll-reveal wrapper play on load */
   if(!el.closest('[data-reveal]')) requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('is-shown')));
 }
-const MASK_SELECTOR='.section-title,.statement h2,.feature-panel h2,.feature-copy h2,.page-head h1,.about-hero h1,.join-inner h2,.longevity-inner h2,.about-story h2,.article-detail h1,.testimonial blockquote,.auth-form h1,.auth-image h2';
+const MASK_SELECTOR='.section-title,.statement h2,.feature-panel h2,.feature-copy h2,.page-head h1,.about-hero h1,.join-inner h2,.longevity-inner h2,.longevity-title,.about-story h2,.article-detail h1,.testimonial blockquote,.auth-form h1,.auth-image h2';
 
 function initPageMotion(){
   $$(MASK_SELECTOR).forEach(maskText);
@@ -769,7 +778,7 @@ function initPageMotion(){
 function render(scroll=true){revealObserver?.disconnect();const [path,id]=(location.hash.replace(/^#\/?/,'')||'').split('/');let html;switch(path){case '':html=home();break;case 'explore':html=explorePage();break;case 'studios':html=studiosPage(id);break;case 'read':html=readPage(id);break;case 'about':html=aboutPage();break;case 'connect':html=contactPage();break;case 'signup':html=authPage();break;case 'login':html=authPage(true);break;case 'profile':html=profilePage();break;case 'setup':html=setupPage();break;case 'book':html=bookPage(id);break;case 'privacy':html=legalPage(true);break;case 'terms':html=legalPage(false);break;default:html=notFound();}$('#main').innerHTML=html;renderFooter();const names={'':'Vitality Ritual',explore:'Explore',studios:'Studios',read:'The ViRi edit',about:'About us',connect:'Connect',signup:'Join your circle',login:'Welcome back',profile:'Your circle',setup:'Your profile',book:'Book this class',privacy:'Your privacy',terms:'Preview terms'};document.title=`ViRi — ${names[path]||'Find your way'}`;$$('.site-header nav a').forEach(a=>{if(a.getAttribute('href')===`#/${path}`)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});$('#menu-panel').hidden=true;$('#menu-button').setAttribute('aria-expanded','false');if(scroll){window.scrollTo({top:0,behavior:'instant'});$('#main').focus({preventScroll:true});}initPageMotion();if(path==='signup'||path==='login')bindAuth(path==='login');if(path==='setup')bindSetup();
   $('#subscribe-form')?.addEventListener('submit',e=>{e.preventDefault();
     toast('Saved on this device only \u2014 the preview does not send email.');e.target.reset();});if(path==='explore'){$('#ex-search').addEventListener('input',e=>{ex.query=e.target.value;exRefresh();});$('#ex-time').addEventListener('change',e=>{ex.time=e.target.value;exRefresh();});exBindMap();}}
-document.addEventListener('click',e=>{const t=e.target.closest('[data-action]');if(!t)return;const {action,id,index,category,view,kind,name,channel}=t.dataset;switch(action){case 'video-toggle':{const v=$('#'+(t.dataset.video||'about-video'));if(v.paused)v.play().catch(()=>toast('Video playback is unavailable in this browser.'));else v.pause();break;}case 'close-modal':closeModal();break;case 'studio-prev':studioIndex=(studioIndex+studios.length-1)%studios.length;$('#studio-grid').innerHTML=studioCards();break;case 'studio-next':studioIndex=(studioIndex+1)%studios.length;$('#studio-grid').innerHTML=studioCards();break;case 'ex-city':ex={...ex,city:t.dataset.id,venue:null,cls:null};render(false);break;
+document.addEventListener('click',e=>{const t=e.target.closest('[data-action]');if(!t)return;const {action,id,index,category,view,kind,name,channel}=t.dataset;switch(action){case 'video-toggle':{const v=$('#'+(t.dataset.video||'about-video'));if(v.paused)v.play().catch(()=>toast('Video playback is unavailable in this browser.'));else v.pause();break;}case 'close-modal':closeModal();break;case 'studio-prev':studioIndex=Math.max(0,studioIndex-1);$('#studio-grid').innerHTML=studioCards();syncStudioNav();break;case 'studio-next':studioIndex=Math.min(STUDIO_LAST(),studioIndex+1);$('#studio-grid').innerHTML=studioCards();syncStudioNav();break;case 'ex-city':ex={...ex,city:t.dataset.id,venue:null,cls:null};render(false);break;
 case 'ex-day':ex={...ex,day:+t.dataset.day,cls:null};render(false);break;
 case 'ex-cat':ex={...ex,cat:t.dataset.cat,cls:null};render(false);break;
 case 'ex-members':ex={...ex,members:!ex.members,cls:null};render(false);break;
@@ -787,7 +796,7 @@ case 'book-new':bookChoose(t.dataset.id,'new');break;
 case 'book-plan':bookChoose(t.dataset.id,'plan');break;
 case 'ex-zoom':exZoom(t.dataset.dir);break;
 case 'ex-reset':ex={...ex,cat:'All',time:'All',members:false,query:'',venue:null,cls:null};render(false);break;
-case 'explore-category':explore.category=category;render(false);break;case 'explore-view':explore.view=view;render(false);break;case 'explore-kind':explore.kind=kind;render(false);break;case 'reset-filters':explore={...explore,query:'',category:'All',area:'All neighborhoods'};render(false);break;case 'create-event':createActivity(false);break;case 'create-club':createActivity(true);break;case 'event-details':eventDetails(id);break;case 'join-event':toggleJoin(id);break;case 'show-map':closeModal();const target=allEvents().find(x=>x.id===id);explore={...explore,selected:id,kind:target?.type==='club'?'clubs':'classes',view:'map',category:'All',area:'All neighborhoods',query:''};if(location.hash!=='#/explore')location.hash='#/explore';else render(false);break;case 'save-studio':state.saved=state.saved.includes(id)?state.saved.filter(x=>x!==id):[...state.saved,id];save();render(false);toast(state.saved.includes(id)?'Studio saved to your profile.':'Studio removed from your saved list.');break;case 'studio-explore':explore={...explore,category,kind:'classes'};break;case 'read-filter':readCategory=category;render(false);break;case 'post-activity':postActivity();break;case 'connect-sample':state.connections=state.connections.includes('alex')?[]:['alex'];save();render(false);toast(state.connections.length?'Sample connection added to your preview.':'Sample connection removed.');break;case 'edit-profile':openModal('Make your profile yours',`<form id="edit-form"><div class="field"><label for="edit-name">Your name</label><input id="edit-name" name="name" value="${escapeHTML(state.profile?.name)}" required maxlength="60"></div><div class="field"><label for="edit-area">Your neighborhood</label><input id="edit-area" name="area" value="${escapeHTML(state.profile?.area)}" required maxlength="70"></div><div class="dialog-actions"><button class="button small" type="submit">Save profile</button></div></form>`,()=>$('#edit-form').addEventListener('submit',ev=>{ev.preventDefault();const f=Object.fromEntries(new FormData(ev.target));if(!f.name.trim()||!f.area.trim())return;state.profile={...state.profile,name:f.name.trim(),area:f.area.trim()};save();closeModal();render(false);toast('Profile updated.');}));break;case 'contact-info':openModal(`Connect with ${escapeHTML(name)}`,`<p class="dialog-copy">${escapeHTML(channel)} details will appear here when ${escapeHTML(name)}’s contact link is added.</p><p class="small" style="margin-top:18px">The website script did not include a verified ${escapeHTML(channel.toLowerCase())} address.</p><div class="dialog-actions"><button class="button small" data-action="close-modal">Got it</button></div>`);break;case 'clear-preview':openModal('Clear your preview?',`<p class="dialog-copy">This removes your demo profile, plans, posts, connections, and saved studios from this browser.</p><div class="dialog-actions"><button class="button outline small" data-action="close-modal">Keep my preview</button><button class="button small" data-action="confirm-clear">Clear preview</button></div>`);break;case 'confirm-clear':state={profile:null,joined:[],saved:[],created:[],posts:[],connections:[]};save();closeModal();render(false);toast('Your preview data has been cleared.');break;case 'credits':openModal('Photography',`<p class="dialog-copy">Images are shown for this design preview. Studio photography belongs to the respective brands and photographers.</p><p style="margin-top:18px">Running photograph: Tyler Nix / Unsplash, via Shape Republic. Pilates studio: Ohouse. Yoga class: Three Birds Yoga. Yoga mats: Mayo Clinic News Network. Brand imagery: CycleBar, [solidcore], Pure Barre, CorePower Yoga, SoulCycle, Orangetheory, Club Pilates, and Barry’s.</p><p class="small" style="margin-top:18px">Community photographs are AI-generated originals; the lifestyle photography was supplied for this preview.</p>`);break;}});
+case 'explore-category':explore.category=category;render(false);break;case 'explore-view':explore.view=view;render(false);break;case 'explore-kind':explore.kind=kind;render(false);break;case 'reset-filters':explore={...explore,query:'',category:'All',area:'All neighborhoods'};render(false);break;case 'create-event':createActivity(false);break;case 'create-club':createActivity(true);break;case 'event-details':eventDetails(id);break;case 'join-event':toggleJoin(id);break;case 'show-map':closeModal();const target=allEvents().find(x=>x.id===id);explore={...explore,selected:id,kind:target?.type==='club'?'clubs':'classes',view:'map',category:'All',area:'All neighborhoods',query:''};if(location.hash!=='#/explore')location.hash='#/explore';else render(false);break;case 'save-studio':state.saved=state.saved.includes(id)?state.saved.filter(x=>x!==id):[...state.saved,id];save();render(false);toast(state.saved.includes(id)?'Studio saved to your profile.':'Studio removed from your saved list.');break;case 'studio-explore':explore={...explore,category,kind:'classes'};break;case 'post-activity':postActivity();break;case 'connect-sample':state.connections=state.connections.includes('alex')?[]:['alex'];save();render(false);toast(state.connections.length?'Sample connection added to your preview.':'Sample connection removed.');break;case 'edit-profile':openModal('Make your profile yours',`<form id="edit-form"><div class="field"><label for="edit-name">Your name</label><input id="edit-name" name="name" value="${escapeHTML(state.profile?.name)}" required maxlength="60"></div><div class="field"><label for="edit-area">Your neighborhood</label><input id="edit-area" name="area" value="${escapeHTML(state.profile?.area)}" required maxlength="70"></div><div class="dialog-actions"><button class="button small" type="submit">Save profile</button></div></form>`,()=>$('#edit-form').addEventListener('submit',ev=>{ev.preventDefault();const f=Object.fromEntries(new FormData(ev.target));if(!f.name.trim()||!f.area.trim())return;state.profile={...state.profile,name:f.name.trim(),area:f.area.trim()};save();closeModal();render(false);toast('Profile updated.');}));break;case 'contact-info':openModal(`Connect with ${escapeHTML(name)}`,`<p class="dialog-copy">${escapeHTML(channel)} details will appear here when ${escapeHTML(name)}’s contact link is added.</p><p class="small" style="margin-top:18px">The website script did not include a verified ${escapeHTML(channel.toLowerCase())} address.</p><div class="dialog-actions"><button class="button small" data-action="close-modal">Got it</button></div>`);break;case 'clear-preview':openModal('Clear your preview?',`<p class="dialog-copy">This removes your demo profile, plans, posts, connections, and saved studios from this browser.</p><div class="dialog-actions"><button class="button outline small" data-action="close-modal">Keep my preview</button><button class="button small" data-action="confirm-clear">Clear preview</button></div>`);break;case 'confirm-clear':state={profile:null,joined:[],saved:[],created:[],posts:[],connections:[]};save();closeModal();render(false);toast('Your preview data has been cleared.');break;case 'credits':openModal('Photography',`<p class="dialog-copy">Images are shown for this design preview. Studio photography belongs to the respective brands and photographers.</p><p style="margin-top:18px">Running photograph: Tyler Nix / Unsplash, via Shape Republic. Pilates studio: Ohouse. Yoga class: Three Birds Yoga. Yoga mats: Mayo Clinic News Network. Brand imagery: CycleBar, [solidcore], Pure Barre, CorePower Yoga, SoulCycle, Orangetheory, Club Pilates, and Barry’s.</p><p class="small" style="margin-top:18px">Community photographs are AI-generated originals; the lifestyle photography was supplied for this preview.</p>`);break;}});
 $('#menu-button').addEventListener('click',()=>{const open=$('#menu-panel').hidden;$('#menu-panel').hidden=!open;$('#menu-button').setAttribute('aria-expanded',String(open));});
 document.addEventListener('click',e=>{if(!e.target.closest('.site-header')){$('#menu-panel').hidden=true;$('#menu-button').setAttribute('aria-expanded','false');}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){$('#menu-panel').hidden=true;$('#menu-button').setAttribute('aria-expanded','false');}});

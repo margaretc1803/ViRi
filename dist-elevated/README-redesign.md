@@ -487,9 +487,11 @@ always reads as a reveal rather than writing, and hand-authoring six cursive let
 came out illegible both times, closer to "eign up". Doing it properly needs single-stroke path
 data exported from something like SVGator, not letterforms invented in a text editor.
 
-**The layout.** A full-bleed band, `clamp(580px,82vh,880px)` tall, holding `tennis-court.webp`.
-A `--cocoa` panel sits centred and a little above the middle with the heading, two fields and the
-button; the old **A new ritual. / A new circle. / A little more you.** returns as display type
+**The layout.** A full-bleed band holding `tennis-court.webp`, `calc(100svh - var(--header))` tall
+with a 540px floor, so the photograph runs from under the header to the foot of the screen and the
+footer only appears on scroll. A `--cocoa` panel sits centred and a little above the middle with
+the heading, two fields and the button — 320px wide, deliberately modest against the photograph
+rather than the focal point; the old **A new ritual. / A new circle. / A little more you.** returns as display type
 across the foot of the photograph, set in Bodoni rather than the mock-up's sans so it sits in the
 same voice as the cover. The heading is Bodoni italic, mixed case, which is the one place the site
 uses italic display type — it matches the reference without inventing a new register. The button

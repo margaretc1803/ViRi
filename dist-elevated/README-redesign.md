@@ -477,81 +477,38 @@ the only child and its contents still hugged right, which read as a stray indent
 — `min(1320px, 100% - 2 × gutter)`, matching `.wrap` — so the member quote reads as its own
 section rather than running on from the edit grid.
 
-## Sign up is a photograph, and the questions moved to their own screen
+## Sign up: photograph, panel, statement
 
-Asked for on 24 September. `#/signup` was a two-column split — photograph left, a full form right.
-It is now one centred photograph and nothing else.
+Asked for on 24 September, from a mock-up and a coming-soon page as reference. It replaces a run
+of attempts at animating "sign up" as handwriting — a `clip-path` wipe, a `stroke-dashoffset`
+mask, and twice drawing the word as a true single-stroke path. **None of them worked and the idea
+was dropped.** For the record, so nobody spends the afternoon on it again: masking real type
+always reads as a reveal rather than writing, and hand-authoring six cursive letters as béziers
+came out illegible both times, closer to "eign up". Doing it properly needs single-stroke path
+data exported from something like SVGator, not letterforms invented in a text editor.
 
-**The screen.** `.auth-plate` is `studio-entry.jpg` at its own 736:920 proportions, capped at
-560px and centred on the cream ground, exactly as the home cover sits as a plate on a field. Over
-it, **sign up** in Italianno — the site's `--script` face — as the page's `h1`. The whole plate is
-the link to `#/join`, so the letters are clickable along with the photograph around them.
+**The layout.** A full-bleed band, `clamp(580px,82vh,880px)` tall, holding `tennis-court.webp`.
+A `--cocoa` panel sits centred and a little above the middle with the heading, two fields and the
+button; the old **A new ritual. / A new circle. / A little more you.** returns as display type
+across the foot of the photograph, set in Bodoni rather than the mock-up's sans so it sits in the
+same voice as the cover. The heading is Bodoni italic, mixed case, which is the one place the site
+uses italic display type — it matches the reference without inventing a new register. The button
+is `.button.light`, the cream-on-dark variant that already existed for panels like this.
 
-**How the letters draw.** A **`stroke-dashoffset` mask**, the technique SVGator's handwriting
-guide describes, over **5s** after a 0.4s beat. An invisible path runs the pen's own route and
-masks the lockup; animating its dash offset from 1000 to 0 uncovers the letters along that route.
-`pathLength="1000"` normalises the dash maths so the real arc length never has to be measured.
+**The crop needs watching.** The source is 1200×1800 and the band is far wider than it is tall, so
+at desktop widths only about a third of the frame is visible — at `object-position:center 42%` it
+showed the wall and cut the figures' heads off. It is `center 70%` now, which holds both women and
+the court. Below roughly 700px wide the band is taller than the scaled image and the full height
+shows instead, so the crop only matters on desktop.
 
-**The mask width is the whole trick, and it is easy to get wrong.** The first attempt used a
-210-unit stroke on a route that only undulated gently left to right. The text is about 215 units
-tall, so a stroke that wide covered the full height at every point and the result was
-indistinguishable from the `clip-path` wipe it replaced — it looked identical on the live site. It
-is now **118 units** on a route that actually traces the letters: up the entry stroke of each one,
-round its bowl, down into the descenders of `g` and `p`, back up for the next. At that width a
-letter finishes before its neighbour starts, so mid-animation you get "si" and a `g` whose bowl is
-drawn but whose descender is not — which is what writing looks like. Per-character positions came
-from `getExtentOfChar` on the `<text>` element rather than being guessed.
+**Two fields, then the existing flow.** The page takes first and last name only. `bindSignup`
+joins them into `joinData.name`, sets `joinStep` to 1 and sends you to `#/join`, which therefore
+opens on the email question rather than asking for the name a second time. Stepping back from
+there shows the name already filled in. Nothing downstream changed: the last join step still
+writes the same `state.profile` and hands off to `#/setup`. The form is `novalidate` so both
+messages come from `bindSignup` rather than one from the browser.
 
-**If the route is edited, re-check coverage at offset 0.** A narrow mask only reveals everything at
-the end because the route passes within 59 units of every piece of ink. Widen the letters, change
-the font size, or simplify the route and parts of a glyph can stay hidden for good.
-
-Two earlier attempts are worth recording. A plain `clip-path` wipe was the first, and it reads as a
-shutter opening rather than writing. Then the word was hand-drawn as a genuine single-stroke path,
-which is what the guide actually recommends — but hand-authoring six cursive letters to an elegant
-standard did not work; it rendered closer to "eign up". Masking real type gets the writing order
-without asking for draughtsmanship the letterforms cannot survive.
-
-**There is no `drop-shadow` on the SVG.** One was there briefly and, being a dark blur behind white
-letters on a pale photograph, it read as a black border around every stroke. If the letters ever
-need lifting off a lighter image, do it with the scrim on `.auth-plate:after`, not a shadow.
-
-**The face is Allura** (`--hand`, kept separate from `--script`). It is the closest thing on Google
-Fonts to Canva's **Aniyah**, which is what Margaret was working from: Din Studio's modern
-calligraphy, fine delicate strokes, a slight slant, an open `g` loop. Fifteen candidates were set
-in "sign up" side by side to pick it — Alex Brush was the runner-up and is slightly more
-brush-like. Two earlier attempts were rejected: Italianno's high stroke contrast made the wipe pop
-whole thick strokes into view at once, and Sacramento was monoline but too plain.
-
-**The word is small; the swashes reach the edges.** Aniyah's own lead-in and exit strokes carry
-out past the letters, which no Google script does by default, so they are drawn. The whole lockup
-is one inline SVG on a `0 0 1000 300` viewBox: a lead-in path, `<text>` at 172 units, and an exit
-path. The word occupies about 41% of the width in the middle of the photograph and the two swashes
-run out to both edges, matching the reference proportions. Keeping text and paths in one viewBox
-means they scale together exactly — verified identical at 560px and 350px plate widths — and one
-`clip-path` over the SVG draws lead-in, word and exit as a single continuous pass.
-
-**The swashes are filled wedges, not stroked lines.** Each is a closed path about 4 units thick
-where it meets the letterform and under 1 unit at the outer end, so it tapers away the way a nib
-lifts. Stroked at a uniform width they read as ruled lines, which was the first thing wrong with
-them.
-**The reduced-motion block needed an explicit `.auth-script{clip-path:none}`** — the blanket
-`*{animation:none!important}` there would otherwise freeze the word clipped shut and invisible
-rather than showing it.
-
-**`#/join` asks one question at a time.** Four steps — name, email, neighborhood, what moves you —
-each its own screen with a `01 / 04` counter, Back and Continue, and a four-segment progress rule.
-`joinStep` and `joinData` hold the answers between steps; `joinStep` resets whenever `#/signup`
-renders. The last step writes the same `state.profile` shape the old single form wrote and hands
-off to `#/setup`, so everything downstream is unchanged. Empty name and empty email are caught in
-`bindJoin`; a malformed email is caught by the native `type="email"` constraint before the handler
-runs, so that case shows the browser's own message rather than the inline one.
-
-**Login keeps its form** and `authPage()` is now login-only — the signup branches inside it, and
-the `login` parameter, are gone rather than left dead. It asks for the email alone, as before.
-
-**Checked** at 390 and 1440px across fifteen routes including `#/join` — no overflow, no console
-errors. The flow was walked end to end: the plate link opens step 01, an empty name is refused,
-all four answers are captured, and the profile written to `localStorage` came back as
-`{name, email, area, interests}` before landing on `#/setup`. Login was re-tested both ways: an
-unknown email is refused, a known one opens the profile.
+**Checked** at 390 and 1440px across fourteen routes — no overflow, no console errors. The flow
+was walked end to end: an empty submit is refused, a first name alone is refused, both names open
+`#/join` at step 02/04, and stepping back shows "Margaret Cole" prefilled. Login is untouched and
+still opens a saved profile from its email field.

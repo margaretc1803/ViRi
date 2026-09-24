@@ -3,7 +3,7 @@
 Generated 20 September 2026 from the files actually on disk, cross-referenced against the
 original `ASSET_SOURCES.json` (which only covers the first build).
 
-**38 catalogued files, of the 50 now in the folder. 25 referenced by the site, 13 retired but
+**39 catalogued files, of the 51 now in the folder. 26 referenced by the site, 13 retired but
 still present.** Updated 24 September 2026: `connect2.jpg` is the single Find your circle
 photograph; `typing.jpg` came in for that section and went out again when it dropped to one
 picture; `pin-legs.jpg`, `pin-rug.jpg` and `studio-still.jpg` were freed when the section stopped
@@ -54,6 +54,7 @@ else came in later — mostly from Margaret's Pinterest board — and has no pro
 | `studio-sculpt.jpg` | yes | not recorded | Not recorded. Supplied by Margaret or added during the redesign; treat as third-party and unl… |
 | `studio-shelf.jpg` | yes | not recorded | Not recorded. Supplied by Margaret or added during the redesign; treat as third-party and unl… |
 | `studio-still.jpg` | — | not recorded | Not recorded. Supplied by Margaret or added during the redesign; treat as third-party and unl… |
+| `tennis-court.webp` | yes | supplied by Margaret 24 Sep 2026 (`project/Photos/TennisCourt.webp`) | Not recorded. Supplied by Margaret; treat as third-party and unl… |
 | `typing.jpg` | — | supplied by Margaret 23 Sep 2026 (`project/Photos/Typing.jpeg`) | Not recorded. Supplied by Margaret; treat as third-party and unl… |
 
 ## What this means

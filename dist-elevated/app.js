@@ -597,15 +597,37 @@ function aboutPage(){return `<section class="about-hero is-placeholder"><div cla
   </figure>
 </div></section>${joinSection()}`;}
 function contactPage(){return `<section class="page-head"><div class="wrap"><p class="eyebrow">Let’s connect</p><h1>Good things start<br>with a conversation.</h1><p>Meet the people behind ViRi.</p></div></section><div class="wrap"><div class="contact-grid">${[{name:'Margaret Cole',initials:'MC'},{name:'Annabel Green',initials:'AG'}].map(f=>`<article class="contact-card"><div class="founder-monogram">${f.initials}</div><h2>${f.name}</h2><p>Co-founder · Washington, DC</p><p>Building a community around movement, shared routines, and the people nearby.</p><div class="contact-actions"><button class="button small outline" data-action="contact-info" data-name="${f.name}" data-channel="Email">Email ${arrow}</button><button class="button small outline" data-action="contact-info" data-name="${f.name}" data-channel="LinkedIn">LinkedIn ${arrow}</button></div></article>`).join('')}</div><div class="notice-box" style="margin-top:-35px;margin-bottom:70px"><h3>Follow the next chapter.</h3><p style="margin-top:15px">ViRi’s Instagram, TikTok, and founder contact links are coming soon.</p><p class="small" style="margin-top:12px">Contact details and social account URLs have not been supplied for this preview.</p></div></div>`;}
-/* the sign-up screen is the photograph and nothing else: the script letters are
-   the way in, and the questions are asked one at a time on #/join */
-function signupPage(){joinStep=0;return `<section class="auth-hero">
-  <a class="auth-plate" href="#/join">
-    <img src="${A}studio-entry.jpg" alt="Two women arriving at the studio together">
-    <h1 class="auth-script"><svg viewBox="0 0 1000 300" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Sign up"><defs><mask id="viri-pen" maskUnits="userSpaceOnUse" x="-60" y="-40" width="1120" height="380"><path class="auth-pen" pathLength="1000" d="M-60 244 C 60 240 180 224 296 194 C 306 178 316 150 312 132 C 308 116 298 122 302 142 C 308 166 328 184 344 192 C 352 176 360 150 364 124 C 368 152 372 176 382 192 C 396 184 408 162 410 144 C 412 128 400 126 396 142 C 392 162 404 184 420 192 C 432 212 436 242 428 260 C 418 276 402 270 404 252 C 406 234 424 220 444 206 C 452 194 456 164 452 146 C 462 160 468 180 470 194 C 472 172 480 150 490 144 C 500 156 504 178 508 194 C 520 196 540 194 564 188 C 570 170 572 152 574 136 C 576 158 580 180 590 192 C 600 184 606 162 608 144 C 610 164 614 186 622 194 C 632 190 638 170 638 150 C 636 184 632 226 628 256 C 632 226 636 188 638 158 C 652 142 672 154 668 176 C 664 192 648 196 638 192 C 680 192 742 184 802 172 C 882 156 942 142 1060 110"/></mask></defs><g mask="url(#viri-pen)"><path class="auth-swash" d="M6 231.8 C 118 228 228 212 300 188 L300 193 C 228 217 118 232.6 6 232.9 Z"/><text class="auth-word" x="500" y="196" text-anchor="middle">sign up</text><path class="auth-swash" d="M700 187 C 794 177 892 160 994 127.6 L994 128.4 C 892 165 794 185 700 192 Z"/></g></svg></h1>
-  </a>
-  <p class="auth-hero-foot">Already have a profile? <a href="#/login">Log in</a></p>
+/* the sign-up screen takes the name only; the rest is asked one question at a
+   time on #/join, which starts on the email step because the name is in hand */
+function signupPage(){return `<section class="signup-hero">
+  <img class="signup-photo" src="${A}tennis-court.webp" alt="Two women resting either side of the net on a tennis court">
+  <div class="signup-panel">
+    <h1>Sign up now</h1>
+    <form id="signup-form" novalidate>
+      <label class="sr-only" for="su-first">First name</label>
+      <input id="su-first" name="first" placeholder="First name" autocomplete="given-name" maxlength="40">
+      <label class="sr-only" for="su-last">Last name</label>
+      <input id="su-last" name="last" placeholder="Last name" autocomplete="family-name" maxlength="40">
+      <p id="su-error" class="field-error" role="alert"></p>
+      <button class="button light" type="submit">Go ${arrow}</button>
+    </form>
+    <p class="signup-foot">Already have a profile? <a href="#/login">Log in</a></p>
+  </div>
+  <p class="signup-statement">A new ritual.<br>A new circle.<br>A little more you.</p>
 </section>`;}
+function bindSignup(){
+  const f=$('#signup-form');if(!f)return;
+  $('#su-first')?.focus({preventScroll:true});
+  f.addEventListener('submit',e=>{
+    e.preventDefault();
+    const fd=new FormData(f), err=$('#su-error');
+    const first=String(fd.get('first')||'').trim(), last=String(fd.get('last')||'').trim();
+    if(!first||!last){err.textContent='Please enter your first and last name.';return;}
+    joinData.name=`${first} ${last}`;
+    joinStep=1;
+    location.hash='#/join';
+  });
+}
 const JOIN_STEPS=[
   {key:'name',type:'text',q:'What should we call you?',hint:'However you introduce yourself in class.',placeholder:'First and last name',autocomplete:'name',required:true},
   {key:'email',type:'email',q:'Where can we reach you?',hint:'Only used to find this profile again in this browser. Nothing is sent.',placeholder:'you@example.com',autocomplete:'email',required:true},
@@ -826,7 +848,7 @@ function initPageMotion(){
   revealObserver=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('is-revealed');revealObserver.unobserve(entry.target);}}),{threshold:.08,rootMargin:'0px 0px -30px 0px'});
   targets.forEach(el=>{el.classList.add('will-reveal');revealObserver.observe(el);});
 }
-function render(scroll=true){revealObserver?.disconnect();const [path,id]=(location.hash.replace(/^#\/?/,'')||'').split('/');let html;switch(path){case '':html=home();break;case 'explore':html=explorePage();break;case 'studios':html=studiosPage(id);break;case 'read':html=readPage(id);break;case 'about':html=aboutPage();break;case 'connect':html=contactPage();break;case 'signup':html=signupPage();break;case 'join':html=joinPage();break;case 'login':html=authPage();break;case 'profile':html=profilePage();break;case 'setup':html=setupPage();break;case 'book':html=bookPage(id);break;case 'privacy':html=legalPage(true);break;case 'terms':html=legalPage(false);break;default:html=notFound();}$('#main').innerHTML=html;renderFooter();const names={'':'Vitality Ritual',explore:'Explore',studios:'Studios',read:'The ViRi edit',about:'About us',connect:'Connect',signup:'Sign up',join:'Create your profile',login:'Welcome back',profile:'Your circle',setup:'Your profile',book:'Book this class',privacy:'Your privacy',terms:'Preview terms'};document.title=`ViRi — ${names[path]||'Find your way'}`;$$('.site-header nav a').forEach(a=>{if(a.getAttribute('href')===`#/${path}`)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});$('#menu-panel').hidden=true;$('#menu-button').setAttribute('aria-expanded','false');if(scroll){window.scrollTo({top:0,behavior:'instant'});$('#main').focus({preventScroll:true});}initPageMotion();if(path==='login')bindAuth();if(path==='join')bindJoin();if(path==='setup')bindSetup();
+function render(scroll=true){revealObserver?.disconnect();const [path,id]=(location.hash.replace(/^#\/?/,'')||'').split('/');let html;switch(path){case '':html=home();break;case 'explore':html=explorePage();break;case 'studios':html=studiosPage(id);break;case 'read':html=readPage(id);break;case 'about':html=aboutPage();break;case 'connect':html=contactPage();break;case 'signup':html=signupPage();break;case 'join':html=joinPage();break;case 'login':html=authPage();break;case 'profile':html=profilePage();break;case 'setup':html=setupPage();break;case 'book':html=bookPage(id);break;case 'privacy':html=legalPage(true);break;case 'terms':html=legalPage(false);break;default:html=notFound();}$('#main').innerHTML=html;renderFooter();const names={'':'Vitality Ritual',explore:'Explore',studios:'Studios',read:'The ViRi edit',about:'About us',connect:'Connect',signup:'Sign up',join:'Create your profile',login:'Welcome back',profile:'Your circle',setup:'Your profile',book:'Book this class',privacy:'Your privacy',terms:'Preview terms'};document.title=`ViRi — ${names[path]||'Find your way'}`;$$('.site-header nav a').forEach(a=>{if(a.getAttribute('href')===`#/${path}`)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});$('#menu-panel').hidden=true;$('#menu-button').setAttribute('aria-expanded','false');if(scroll){window.scrollTo({top:0,behavior:'instant'});$('#main').focus({preventScroll:true});}initPageMotion();if(path==='login')bindAuth();if(path==='signup')bindSignup();if(path==='join')bindJoin();if(path==='setup')bindSetup();
   $('#subscribe-form')?.addEventListener('submit',e=>{e.preventDefault();
     toast('Saved on this device only \u2014 the preview does not send email.');e.target.reset();});if(path==='explore'){$('#ex-search').addEventListener('input',e=>{ex.query=e.target.value;exRefresh();});$('#ex-time').addEventListener('change',e=>{ex.time=e.target.value;exRefresh();});exBindMap();}}
 document.addEventListener('click',e=>{const t=e.target.closest('[data-action]');if(!t)return;const {action,id,index,category,view,kind,name,channel}=t.dataset;switch(action){case 'video-toggle':{const v=$('#'+(t.dataset.video||'about-video'));if(v.paused)v.play().catch(()=>toast('Video playback is unavailable in this browser.'));else v.pause();break;}case 'close-modal':closeModal();break;case 'join-back':joinStep=Math.max(0,joinStep-1);render(false);break;case 'studio-prev':studioIndex=Math.max(0,studioIndex-1);$('#studio-grid').innerHTML=studioCards();syncStudioNav();break;case 'studio-next':studioIndex=Math.min(STUDIO_LAST(),studioIndex+1);$('#studio-grid').innerHTML=studioCards();syncStudioNav();break;case 'ex-city':ex={...ex,city:t.dataset.id,venue:null,cls:null};render(false);break;

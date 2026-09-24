@@ -58,24 +58,21 @@ function home(){return `<div class="home-page">
   <p>Connect with the people in your city who already share your fitness interests. Instead of trying to convince your friend to take that morning spin class with you, connect with someone who is already signed up.</p>
   <a class="button" href="#/signup">Join now</a>
 </section>
-<div class="connect-wrap" id="connect-wrap">
-  <section class="feature feature-connect">
-    <figure class="feature-media connect-media">
-      <img class="connect-shot is-on" src="${A}pin-legs.jpg" alt="A single figure mid-movement, legs arched against a plain ground" loading="lazy">
-      <img class="connect-shot" src="${A}studio-still.jpg" alt="Mats, blocks and weights laid out before class" loading="lazy">
-      <img class="connect-shot" src="${A}pin-rug.jpg" alt="Two women sitting together on a mat, seen from above" loading="lazy">
-    </figure>
-    <div class="feature-panel">
-      <h2>Connect</h2>
-      <ol class="panel-list">
-        <li class="is-on"><span class="panel-n">1</span><span class="panel-body"><span class="panel-t">Build your profile</span><span class="panel-d"><span>What moves you, where you go, the hours you keep.</span></span></span></li>
-        <li><span class="panel-n">2</span><span class="panel-body"><span class="panel-t">Explore what’s nearby</span><span class="panel-d"><span>The studios, classes and standing plans around you.</span></span></span></li>
-        <li><span class="panel-n">3</span><span class="panel-body"><span class="panel-t">Find your people</span><span class="panel-d"><span>Meet the women booked into the same class, and go together.</span></span></span></li>
-      </ol>
-      <a class="panel-link" href="#/signup">Start your profile ${arrow}</a>
-    </div>
-  </section>
-</div>
+<section class="feature feature-connect" data-reveal>
+  <figure class="feature-media connect-media">
+    <img src="${A}typing.jpg" alt="A woman on a couch filling in her profile on a laptop" loading="lazy">
+    <img src="${A}connect2.jpg" alt="A woman stretching on a reformer in a lit studio" loading="lazy">
+  </figure>
+  <div class="feature-panel">
+    <h2>Find your circle</h2>
+    <ol class="panel-list">
+      <li><span class="panel-n">1</span><span class="panel-body"><span class="panel-t">Build your profile</span><span class="panel-d"><span>What moves you, where you go, and when.</span></span></span></li>
+      <li><span class="panel-n">2</span><span class="panel-body"><span class="panel-t">Explore what’s nearby</span><span class="panel-d"><span>Add your classes.</span></span></span></li>
+      <li><span class="panel-n">3</span><span class="panel-body"><span class="panel-t">Find your people</span><span class="panel-d"><span>See who’s booked the same classes as you, connect, and go together.</span></span></span></li>
+    </ol>
+    <a class="panel-link" href="#/signup">Start your profile ${arrow}</a>
+  </div>
+</section>
 <section class="section studio-section"><div class="wrap"><div class="section-head" data-reveal><h2 class="section-title">Find your next favorite</h2><div class="head-controls"><button class="circle-button" data-action="studio-prev" aria-label="Previous studios">‹</button><button class="circle-button" data-action="studio-next" aria-label="Next studios">›</button><a class="text-link" href="#/studios">All studios ${arrow}</a></div></div><div class="cards-three" id="studio-grid" aria-live="polite" aria-label="Featured studios">${studioCards()}</div><p class="section-foot">Member attendance counts are illustrative for this preview.</p></div></section>
 <section class="feature feature-reverse" data-reveal>
   <figure class="feature-media"><img src="${A}coffee-table.jpg" alt="Two women talking over coffee at a table after class" loading="lazy"></figure>
@@ -125,7 +122,7 @@ function writeStory(id){
      cannot duplicate a picture that is already somewhere */
   const taken=new Set([...articles,...(state.drafts||[])].filter(x=>!d||x.id!==d.id).map(x=>x.img)
     .concat(Object.values(STUDIO_PHOTO),
-      ['pin-trail.jpg','pin-legs.jpg','studio-still.jpg','pin-rug.jpg','coffee-table.jpg',
+      ['pin-trail.jpg','typing.jpg','connect2.jpg','coffee-table.jpg',
        'studio-sculpt.jpg','studio-entry.jpg','pin-stretch.jpg','mat-class.jpg']));
   const imgs=['pin-cafe.jpg','connect-reformers.jpg','hero-tree-pose.jpg','barre-white.jpg',
     'studio-arches.jpg','barre-balls.jpg','lockers.jpg','studio-shelf.jpg','detail-weights.jpg']
@@ -756,51 +753,8 @@ function maskText(el){
 }
 const MASK_SELECTOR='.section-title,.statement h2,.feature-panel h2,.feature-copy h2,.page-head h1,.about-hero h1,.join-inner h2,.longevity-inner h2,.about-story h2,.article-detail h1,.testimonial blockquote,.auth-form h1,.auth-image h2';
 
-/* The pinned Connect sequence: three steps, three photographs, one scroll. */
-function initConnect(){
-  const wrap=$('#connect-wrap');
-  if(!wrap)return;
-  const shots=$$('.connect-shot',wrap), steps=$$('.panel-list li',wrap);
-  if(!shots.length)return;
-  const sticky=$('.feature-connect',wrap);
-  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const flat=()=>matchMedia('(max-width: 900px)').matches||reduced;
-  const HYST=0.14;
-  let current=-1, queued=false, travel=0;
-  const measure=()=>{
-    const top=parseFloat(getComputedStyle(sticky).top)||0;
-    travel=wrap.offsetHeight-sticky.offsetHeight-top;
-  };
-  const setStep=n=>{
-    if(n===current)return;
-    current=n;
-    shots.forEach((el,i)=>el.classList.toggle('is-on',i<=n));
-    steps.forEach((el,i)=>el.classList.toggle('is-on',i===n));
-  };
-  const update=()=>{
-    queued=false;
-    if(flat()){setStep(0);return;}
-    if(travel<=0){measure();if(travel<=0){setStep(0);return;}}
-    const r=wrap.getBoundingClientRect();
-    const raw=Math.min(Math.max(-r.top/travel,0),0.9999)*shots.length;
-    let n=Math.floor(raw);
-    if(current>=0){
-      if(n===current+1&&raw-n<HYST)n=current;
-      else if(n===current-1&&current-raw<HYST)n=current;
-    }
-    setStep(Math.min(Math.max(n,0),shots.length-1));
-  };
-  const onScroll=()=>{if(!queued){queued=true;requestAnimationFrame(update);}};
-  const onResize=()=>{measure();onScroll();};
-  window.addEventListener('scroll',onScroll,{passive:true});
-  window.addEventListener('resize',onResize);
-  window.addEventListener('load',onResize);
-  wrap._viriScroll=onScroll;
-  measure();update();
-}
 function initPageMotion(){
   $$(MASK_SELECTOR).forEach(maskText);
-  initConnect();
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
   $$('.film-hero video, .about-hero video').forEach(v=>{
     const b=$(`[data-action="video-toggle"][data-video="${v.id}"]`)||$('.video-toggle');

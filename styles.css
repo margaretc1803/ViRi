@@ -410,8 +410,9 @@ input::placeholder,textarea::placeholder{color:#a0968a}
 
 /* ---------------------------------------------------------- auth */
 /* ---- sign up: photograph, panel, statement ----------------------------- */
+/* the photograph runs from under the header to the foot of the screen */
 .signup-hero{position:relative;overflow:hidden;background:var(--taupe-light);
-  height:clamp(580px,82vh,880px);display:grid;place-items:center}
+  height:calc(100svh - var(--header));min-height:540px;display:grid;place-items:center}
 /* the source is 1200x1800 and the band is far wider than it is tall, so the
    crop has to be pulled down the frame to hold the figures and the court */
 .signup-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
@@ -421,18 +422,18 @@ input::placeholder,textarea::placeholder{color:#a0968a}
 .signup-hero:after{content:'';position:absolute;inset:0;
   background:linear-gradient(180deg,rgba(59,50,42,.10) 0%,rgba(59,50,42,.06) 45%,rgba(59,50,42,.52) 100%)}
 .signup-panel{position:relative;z-index:2;background:var(--cocoa);color:var(--on-dark);
-  width:min(400px,calc(100% - var(--gutter) * 2));
-  padding:clamp(26px,3vw,40px) clamp(24px,2.8vw,36px);
-  margin-bottom:clamp(60px,10vw,140px)}
+  width:min(320px,calc(100% - var(--gutter) * 2));
+  padding:clamp(20px,2.2vw,28px) clamp(18px,1.9vw,24px);
+  margin-bottom:clamp(50px,9vw,120px)}
 .signup-panel h1{font-family:var(--display);font-style:italic;font-weight:400;
-  font-size:clamp(1.6rem,2.5vw,2.1rem);line-height:1.1;color:var(--paper);
+  font-size:clamp(1.25rem,1.8vw,1.55rem);line-height:1.1;color:var(--paper);
   text-transform:none;letter-spacing:.01em;text-align:center;
-  margin:0 0 clamp(18px,2vw,26px)}
-.signup-panel input{width:100%;font-size:16px;margin-bottom:12px;
+  margin:0 0 clamp(13px,1.4vw,18px)}
+.signup-panel input{width:100%;font-size:16px;margin-bottom:10px;padding:10px 12px;
   background:transparent;border:1px solid rgba(244,239,232,.46);color:var(--paper)}
 .signup-panel input::placeholder{color:rgba(244,239,232,.6)}
 .signup-panel input:focus-visible{outline:2px solid var(--paper);outline-offset:2px}
-.signup-panel .button{width:100%;margin-top:6px}
+.signup-panel .button{width:100%;margin-top:4px;padding:12px 24px;min-height:40px;font-size:9px}
 .signup-panel .field-error:empty{display:none}
 .signup-panel .field-error{color:#f0c7bd;margin:2px 0 10px}
 .signup-foot{margin:clamp(16px,1.8vw,22px) 0 0;text-align:center;font-size:12.5px;

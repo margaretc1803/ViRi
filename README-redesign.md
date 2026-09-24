@@ -488,12 +488,23 @@ it, **sign up** in Italianno — the site's `--script` face — as the page's `h
 the link to `#/join`, so the letters are clickable along with the photograph around them.
 
 **How the letters draw.** A **`stroke-dashoffset` mask**, the technique SVGator's handwriting
-guide describes, over **5s** after a 0.4s beat. A single invisible path runs the pen's own route —
-in from the left edge, through the letters, out to the right — with a 210-unit round-capped stroke,
-and that path is the `mask` on the lockup. Animating its dash offset from 1000 to 0 uncovers the
-letters along the writing line, so they arrive in order with a soft rounded leading edge instead of
-a hard vertical one. `pathLength="1000"` normalises the dash maths so the real arc length never has
-to be measured.
+guide describes, over **5s** after a 0.4s beat. An invisible path runs the pen's own route and
+masks the lockup; animating its dash offset from 1000 to 0 uncovers the letters along that route.
+`pathLength="1000"` normalises the dash maths so the real arc length never has to be measured.
+
+**The mask width is the whole trick, and it is easy to get wrong.** The first attempt used a
+210-unit stroke on a route that only undulated gently left to right. The text is about 215 units
+tall, so a stroke that wide covered the full height at every point and the result was
+indistinguishable from the `clip-path` wipe it replaced — it looked identical on the live site. It
+is now **118 units** on a route that actually traces the letters: up the entry stroke of each one,
+round its bowl, down into the descenders of `g` and `p`, back up for the next. At that width a
+letter finishes before its neighbour starts, so mid-animation you get "si" and a `g` whose bowl is
+drawn but whose descender is not — which is what writing looks like. Per-character positions came
+from `getExtentOfChar` on the `<text>` element rather than being guessed.
+
+**If the route is edited, re-check coverage at offset 0.** A narrow mask only reveals everything at
+the end because the route passes within 59 units of every piece of ink. Widen the letters, change
+the font size, or simplify the route and parts of a glyph can stay hidden for good.
 
 Two earlier attempts are worth recording. A plain `clip-path` wipe was the first, and it reads as a
 shutter opening rather than writing. Then the word was hand-drawn as a genuine single-stroke path,

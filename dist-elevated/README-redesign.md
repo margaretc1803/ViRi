@@ -487,9 +487,19 @@ It is now one centred photograph and nothing else.
 it, **sign up** in Italianno — the site's `--script` face — as the page's `h1`. The whole plate is
 the link to `#/join`, so the letters are clickable along with the photograph around them.
 
-**How the letters draw.** `clip-path:inset(0 100% 0 0)` animating to `inset(0 0 0 0)` over 2.6s
-on an eased curve after a 0.35s beat, which wipes the word open left to right. Because the script
-face joins its letters, a wipe reads as the word being written; no SVG stroke path was needed.
+**How the letters draw.** `clip-path:inset(0 100% 0 0)` animating to `inset(0 0 0 0)` over **5s**
+after a 0.5s beat, wiping the word open left to right. No SVG stroke path was needed — a wipe
+across a joined script reads as the word being written.
+
+**The face is Sacramento, not Italianno** (`--hand`, kept separate from `--script`). Italianno has
+high stroke contrast, so a wipe passing over it popped whole thick strokes into view at once and
+read as a reveal rather than a pen. Sacramento is monoline: an even stroke uncovered gradually
+looks like a nib travelling along the line, which is the whole effect.
+
+**It spans the plate edge to edge.** `.auth-plate` is `container-type:inline-size` and the word is
+sized in `cqw`, so at 43cqw it fills 92% of the plate width at any screen size — measured at both
+560px and 350px plate widths. A `clamp()` in `vw` sits in front of it as the fallback for anything
+without container query support.
 **The reduced-motion block needed an explicit `.auth-script{clip-path:none}`** — the blanket
 `*{animation:none!important}` there would otherwise freeze the word clipped shut and invisible
 rather than showing it.

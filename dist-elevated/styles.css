@@ -21,6 +21,9 @@
   --display:'Bodoni Moda',Didot,Georgia,serif;
   --mark:'Cormorant Garamond','Bodoni Moda',Didot,Georgia,serif;
   --script:'Italianno','Snell Roundhand','Apple Chancery',cursive;
+  /* monoline hand: a wipe across an even stroke reads as a pen, which the
+     high-contrast --script face does not */
+  --hand:'Sacramento','Snell Roundhand',cursive;
   --body:'Jost',system-ui,-apple-system,'Segoe UI',sans-serif;
   --header:80px;
   --gutter:clamp(20px,4.2vw,64px);
@@ -409,17 +412,20 @@ input::placeholder,textarea::placeholder{color:#a0968a}
 /* ---- sign up: one photograph, the script letters are the link ---------- */
 .auth-hero{padding:clamp(26px,3.4vw,50px) 0 clamp(44px,5.4vw,84px);text-align:center}
 .auth-plate{position:relative;display:block;overflow:hidden;background:var(--taupe-light);
-  margin:0 auto;width:min(560px,calc(100% - var(--gutter) * 2));aspect-ratio:736/920}
+  margin:0 auto;width:min(560px,calc(100% - var(--gutter) * 2));aspect-ratio:736/920;
+  container-type:inline-size}
 .auth-plate img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
   transition:transform 2.4s ease}
 .auth-plate:hover img,.auth-plate:focus-visible img{transform:scale(1.03)}
 .auth-plate:after{content:'';position:absolute;inset:0;z-index:1;
   background:linear-gradient(180deg,rgba(59,50,42,.06),rgba(59,50,42,.30))}
-/* the wipe runs left to right, which reads as the word being written */
+/* the wipe runs left to right, which reads as the word being written.
+   sized in cqw so the word spans the plate edge to edge at every width */
 .auth-script{position:absolute;inset:0;z-index:2;margin:0;display:grid;place-items:center;
-  font-family:var(--script);font-weight:400;font-size:clamp(3.2rem,8.5vw,6rem);line-height:1;
-  text-transform:none;letter-spacing:.02em;color:#fff;text-shadow:0 3px 22px rgba(48,38,29,.42);
-  clip-path:inset(0 100% 0 0);animation:script-draw 2.6s cubic-bezier(.38,.02,.2,1) .35s forwards}
+  font-family:var(--hand);font-weight:400;line-height:1;
+  font-size:clamp(4.6rem,13vw,9.2rem);font-size:43cqw;
+  text-transform:none;letter-spacing:0;color:#fff;text-shadow:0 3px 22px rgba(48,38,29,.4);
+  clip-path:inset(0 100% 0 0);animation:script-draw 5s cubic-bezier(.42,.02,.38,1) .5s forwards}
 @keyframes script-draw{to{clip-path:inset(0 0 0 0)}}
 .auth-hero-foot{margin-top:clamp(20px,2.4vw,30px);font-size:13.5px;color:var(--muted)}
 .auth-hero-foot a{border-bottom:1px solid var(--line-2);color:var(--ink)}

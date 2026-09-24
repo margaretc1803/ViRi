@@ -422,15 +422,17 @@ input::placeholder,textarea::placeholder{color:#a0968a}
    the word and the exit swash draw as one continuous pen pass */
 /* the word sits small in the middle; the two swashes carry the line out to
    both edges, and one clip over the whole SVG draws them as a single pass */
-.auth-script{position:absolute;inset:0;z-index:2;margin:0;display:grid;place-items:center;
-  clip-path:inset(0 100% 0 0);animation:script-draw 5s cubic-bezier(.42,.02,.38,1) .5s forwards}
-.auth-script svg{width:100%;height:auto;display:block;overflow:visible;
-  filter:drop-shadow(0 3px 20px rgba(48,38,29,.4))}
+/* the letters are real Allura; a thick stroke travelling the pen's route masks
+   them in, so they arrive in writing order instead of behind a straight wipe.
+   pathLength normalises the dash maths to 1000 whatever the real arc length is */
+.auth-script{position:absolute;inset:0;z-index:2;margin:0;display:grid;place-items:center}
+.auth-script svg{width:100%;height:auto;display:block;overflow:visible}
+.auth-pen{fill:none;stroke:#fff;stroke-width:210;stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:1000;stroke-dashoffset:1000;
+  animation:handwrite 5s cubic-bezier(.36,.02,.38,1) .4s forwards}
+@keyframes handwrite{to{stroke-dashoffset:0}}
 .auth-word{font-family:var(--hand);font-weight:400;font-size:172px;fill:#fff}
-/* filled wedges rather than stroked lines, so each tapers away from the word
-   the way a nib lifts — a uniform stroke reads as a ruled line */
 .auth-swash{fill:#fff;stroke:none}
-@keyframes script-draw{to{clip-path:inset(0 0 0 0)}}
 .auth-hero-foot{margin-top:clamp(20px,2.4vw,30px);font-size:13.5px;color:var(--muted)}
 .auth-hero-foot a{border-bottom:1px solid var(--line-2);color:var(--ink)}
 
@@ -682,8 +684,8 @@ dialog p{color:var(--muted)}
   .will-reveal,.will-reveal .reveal-word{opacity:1;transform:none}
   .cover-title .cw{opacity:1;transform:none}
   .feature.will-reveal .feature-media img{transform:none}
-  /* the blanket animation:none above would otherwise freeze this clipped shut */
-  .auth-script{clip-path:none}
+  /* the blanket animation:none above would otherwise freeze the mask closed */
+  .auth-pen{stroke-dashoffset:0}
 }
 @media print{
   .site-header{display:none}

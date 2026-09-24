@@ -487,9 +487,23 @@ It is now one centred photograph and nothing else.
 it, **sign up** in Italianno — the site's `--script` face — as the page's `h1`. The whole plate is
 the link to `#/join`, so the letters are clickable along with the photograph around them.
 
-**How the letters draw.** `clip-path:inset(0 100% 0 0)` animating to `inset(0 0 0 0)` over **5s**
-after a 0.5s beat, wiping the word open left to right. No SVG stroke path was needed — a wipe
-across a joined script reads as the word being written.
+**How the letters draw.** A **`stroke-dashoffset` mask**, the technique SVGator's handwriting
+guide describes, over **5s** after a 0.4s beat. A single invisible path runs the pen's own route —
+in from the left edge, through the letters, out to the right — with a 210-unit round-capped stroke,
+and that path is the `mask` on the lockup. Animating its dash offset from 1000 to 0 uncovers the
+letters along the writing line, so they arrive in order with a soft rounded leading edge instead of
+a hard vertical one. `pathLength="1000"` normalises the dash maths so the real arc length never has
+to be measured.
+
+Two earlier attempts are worth recording. A plain `clip-path` wipe was the first, and it reads as a
+shutter opening rather than writing. Then the word was hand-drawn as a genuine single-stroke path,
+which is what the guide actually recommends — but hand-authoring six cursive letters to an elegant
+standard did not work; it rendered closer to "eign up". Masking real type gets the writing order
+without asking for draughtsmanship the letterforms cannot survive.
+
+**There is no `drop-shadow` on the SVG.** One was there briefly and, being a dark blur behind white
+letters on a pale photograph, it read as a black border around every stroke. If the letters ever
+need lifting off a lighter image, do it with the scrim on `.auth-plate:after`, not a shadow.
 
 **The face is Allura** (`--hand`, kept separate from `--script`). It is the closest thing on Google
 Fonts to Canva's **Aniyah**, which is what Margaret was working from: Din Studio's modern
